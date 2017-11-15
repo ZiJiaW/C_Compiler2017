@@ -32,6 +32,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="ErrorHandler.cpp" />
+		<Unit filename="ErrorHandler.h" />
+		<Unit filename="Lexer.cpp" />
+		<Unit filename="Lexer.h" />
+		<Unit filename="Symbol.cpp" />
+		<Unit filename="Symbol.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
