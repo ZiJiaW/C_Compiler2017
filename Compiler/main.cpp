@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include "ErrorHandler.h"
+#include "Lexer.h"
+#include "Symbol.h"
 using namespace std;
 
 int main()
@@ -7,7 +10,16 @@ int main()
     cout << "Please input source code file path:" << endl;
     string fileName;
     cin >> fileName;
-
+    ErrorHandler eh;
+    Lexer lex(fileName, eh);
+    Symbol t;
+    while(true)
+    {
+        t = lex.GetSym();
+        if(t.type() == END)
+            break;
+        cout<< int(t.type())<<"   "<< t.name()<<"    "<< t.lineNum() << endl;
+    }
 
     return 0;
 }

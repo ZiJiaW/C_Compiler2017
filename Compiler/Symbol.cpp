@@ -2,26 +2,27 @@
 #include <string>
 #include "Symbol.h"
 using namespace std;
-Symbol::Symbol(string _name, SymType _type, int _numValue, int _lineNum)
+Symbol::Symbol(SymType type, int lineNum, string name, int numVal)
 {
-    name = _name;
-    type = _type;
-    numVal = _numVal;
-    lineNum = _lineNum;
+    _name = name;
+    _type = type;
+    _numVal = numVal;
+    _lineNum = lineNum;
 }
-Symbol::lineNum()
+Symbol::Symbol(){}
+int Symbol::lineNum()
 {
-    return lineNum;
+    return _lineNum;
 }
-Symbol::name()
+string Symbol::name()
 {
-    return name;
+    return _name;
 }
-Symbol::type()
+SymType Symbol::type()
 {
-    return type;
+    return _type;
 }
-Symbol::numVal()
+int Symbol::numVal()
 {
-    return numVal;
+    return _numVal;
 }

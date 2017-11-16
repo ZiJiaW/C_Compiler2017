@@ -3,18 +3,32 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <map>
 #include "Symbol.h"
+#include "ErrorHandler.h"
 
 class Lexer{
 public:
     Symbol GetSym();
-    Lexer(string fileName);
+    Lexer(string fileName, ErrorHandler &_errorHandler);
 private:
+    map<string, SymType> symTypeMap;
+    void MapInit();
+
     string buffer;
-    int curch;
     int lineNum;
-    bool NewLine();
+
+    char curChar;
+    int curIndex;
+
     fstream file;
+    bool fileEmpty;
+
+    bool NewLine();
+    void NewChar();
+    void Skip();
+
+    ErrorHandler &errorHandler;
 };
 
 #endif // LEXER_H_INCLUDED

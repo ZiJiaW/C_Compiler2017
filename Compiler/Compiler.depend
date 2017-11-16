@@ -1,0 +1,44 @@
+# depslib dependency file v1.0
+1510835960 source:e:\compiler2017\compiler\errorhandler.cpp
+	"ErrorHandler.h"
+
+1510838761 source:e:\compiler2017\compiler\lexer.cpp
+	<iostream>
+	<string>
+	<fstream>
+	<cctype>
+	<cstdlib>
+	"Symbol.h"
+	"Lexer.h"
+	"ErrorHandler.h"
+
+1510836794 e:\compiler2017\compiler\symbol.h
+	<iostream>
+	<string>
+
+1510829372 e:\compiler2017\compiler\lexer.h
+	<iostream>
+	<string>
+	<fstream>
+	<map>
+	"Symbol.h"
+	"ErrorHandler.h"
+
+1510838017 source:e:\compiler2017\compiler\main.cpp
+	<iostream>
+	<string>
+	"ErrorHandler.h"
+	"Lexer.h"
+	"Symbol.h"
+
+1510836845 source:e:\compiler2017\compiler\symbol.cpp
+	<iostream>
+	<string>
+	"Symbol.h"
+
+1510828414 e:\compiler2017\compiler\errorhandler.h
+	<iostream>
+	<string>
+	<vector>
+	<map>
+
