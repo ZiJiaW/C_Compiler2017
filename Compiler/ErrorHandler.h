@@ -14,11 +14,12 @@ class ErrorHandler {
 public:
     bool IsSuccessful();
     void SetError(int lineNum, int errNum, string _errToken);
-    void MapInit();
+    void PrintError();
     ErrorHandler();
 private:
     vector<Error> errors;
     map<unsigned int, string> errorMap;
+    void MapInit();
 };
 
 #endif // ERRORHANDLER_H_INCLUDED

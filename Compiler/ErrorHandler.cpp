@@ -18,6 +18,17 @@ void ErrorHandler::MapInit()
     errorMap[6] = "Got an unrecognized token!";
 }
 /**
+print all errors!
+*/
+void ErrorHandler::PrintError()
+{
+    cout<<"Build failed! Syntax Error!"<<endl;
+    for(vector<Error>::iterator p = errors.begin(); p != errors.end(); p++)
+    {
+        cout<<"[line]"<<(*p)._lineNum<<' '<<(*p).errMsg<<':'<<(*p).errToken<<endl;
+    }
+}
+/**
 1. record an error with index errNum to errors;
 2. errNum must be valid, otherwise it will crush!
 */

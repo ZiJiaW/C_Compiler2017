@@ -7,18 +7,30 @@ using namespace std;
 
 int main()
 {
-    cout << "Please input source code file path:" << endl;
-    string fileName;
-    cin >> fileName;
+ //   cout << "Please input source code file path:" << endl;
+    string fileName("test.txt");
+ //   cin >> fileName;
     ErrorHandler eh;
     Lexer lex(fileName, eh);
-    Symbol t;
+    vector<Symbol> words;
     while(true)
     {
-        t = lex.GetSym();
-        if(t.type() == END)
+        words.push_back(lex.GetSym());
+        if((*words.rbegin()).type() == END)
             break;
-        cout<< int(t.type())<<"   "<< t.name()<<"    "<< t.lineNum() << endl;
+    }
+    if(eh.IsSuccessful())
+    {
+        cout<<"Build finished! No error."<<endl;
+        cout<<"Here is words we got:"<<endl;
+        for(vector<Symbol>::iterator p = words.begin(); p != words.end(); p++)
+        {
+            cout<<(*p).lineNum()<<"    "<<(*p).type()<<"    "<<(*p).name()<<endl;
+        }
+    }
+    else
+    {
+        eh.PrintError();
     }
 
     return 0;

@@ -29,12 +29,12 @@ Lexer::Lexer(string fileName, ErrorHandler &_errorHandler): errorHandler(_errorH
 */
 bool Lexer::NewLine()
 {
+    if(file.eof())
+        return false;
     do {
         getline(file, buffer);
         lineNum++;
-        if(file.eof())
-            return false;
-    } while(buffer.empty());
+    } while(buffer.empty()&&!file.eof());
     buffer.append(1, '\n');
     return true;
 }
@@ -178,14 +178,17 @@ Symbol Lexer::GetSym()
     else if(curChar == '\"')
     {
         bool gotInvalidCh = false;
-        do {
+        while(true)
+        {
             NewChar();
+            token.append(1, curChar);
+            if(!(curChar != '\"' && curChar != '\n' && curChar != '\0'))
+                break;
             if(!(curChar == 32 || curChar == 33 || (curChar>=35&&curChar<=126)))
             {
                 gotInvalidCh = true;
             }
-            token.append(1, curChar);
-        } while(curChar != '\"' && curChar != '\n' && curChar != '\0');
+        }
         // token here maybe "hello world", "hello\n, "hello, "hello[backspace]"
         if(curChar == '\n' || curChar == '\0')
         {

@@ -1,11 +1,26 @@
-const int a = 1002;
-const char match = 'q';
-void main(){
-    int i,sum;
-    sum = 0;
-    for(i=0; i< 10; i = i + 1)
-    {
-        sum = sum + i;
-    }
-    return;
+
+const int MAX = +1000;
+const char qop ='r', name = '5';
+const int index2a01 = -15, i1a = 0, p = +0;
+const char c = '*';
+char x, a5;
+char _s;
+int i, aaw5, _errIndex;
+int hea125;
+char arr[101], arr2, arr3[255];
+int qw[102], _qw[17], _qw;
+
+int sq_dist(int x1, int x2, int x3, int x4)
+{
+    int ret;
+    ret = (x2-x1)*(x2-x1) + (x4-x3)*(x4-x3);
+    return (ret+1)*2/2-1;
 }
+
+int fact(int n)
+{
+    if( n == 1)
+        return 1;
+    return n*fact(n-1);
+}
+
