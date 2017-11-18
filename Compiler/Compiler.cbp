@@ -36,8 +36,17 @@
 		<Unit filename="ErrorHandler.h" />
 		<Unit filename="Lexer.cpp" />
 		<Unit filename="Lexer.h" />
+		<Unit filename="MiddleCode.cpp" />
+		<Unit filename="MiddleCode.h" />
+		<Unit filename="Parser.cpp" />
+		<Unit filename="Parser.h" />
 		<Unit filename="Symbol.cpp" />
 		<Unit filename="Symbol.h" />
+		<Unit filename="SymbolTable.cpp" />
+		<Unit filename="SymbolTable.h" />
+		<Unit filename="TableItem.cpp" />
+		<Unit filename="TableItem.h" />
+		<Unit filename="global.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

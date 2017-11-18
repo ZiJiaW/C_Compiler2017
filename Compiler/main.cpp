@@ -1,12 +1,19 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "ErrorHandler.h"
 #include "Lexer.h"
 #include "Symbol.h"
+#include "TableItem.h"
+#include "SymbolTable.h"
 using namespace std;
 
 int main()
 {
+    // 打印词法分析结果于文件LexerResult中
+    ofstream lexOut;
+    lexOut.open("LexerResult.txt", ios::out);
+
  //   cout << "Please input source code file path:" << endl;
     string fileName("test.txt");
  //   cin >> fileName;
@@ -21,18 +28,17 @@ int main()
     }
     if(eh.IsSuccessful())
     {
-        cout<<"Build finished! No error."<<endl;
-        cout<<"Here is words we got:"<<endl;
+        cout<<"Build Succeeded! Now output the result......"<<endl;
         for(vector<Symbol>::iterator p = words.begin(); p != words.end(); p++)
         {
-            cout<<(*p).lineNum()<<"    "<<(*p).type()<<"    "<<(*p).name()<<endl;
+            lexOut<<"In line:"<<(*p).lineNum()<<"    "<<GetTypeName((*p).type())<<": "<<(*p).name()<<endl;
         }
+        cout<<"Lexer Result in file: LexerResult.txt!"<<endl;
     }
     else
     {
         eh.PrintError();
     }
-
     return 0;
 }
 /** 附加C0文法
@@ -48,7 +54,7 @@ int main()
 ＜常量说明＞ ::=  const＜常量定义＞;{ const＜常量定义＞;}
 ＜常量定义＞   ::=   int＜标识符＞＝＜整数＞{,＜标识符＞＝＜整数＞}
                             | char＜标识符＞＝＜字符＞{,＜标识符＞＝＜字符＞}
-＜无符号整数＞  ::= ＜非零数字＞｛＜数字＞｝
+＜无符号整数＞  ::= ＜非零数字＞{＜数字＞}
 ＜整数＞        ::= ［＋｜－］＜无符号整数＞｜０
 ＜标识符＞    ::=  ＜字母＞｛＜字母＞｜＜数字＞｝
 ＜声明头部＞   ::=  int＜标识符＞ |char＜标识符＞

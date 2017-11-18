@@ -2,64 +2,9 @@
 #define SYMBOL_H_INCLUDED
 #include <iostream>
 #include <string>
+#include "global.h"
 using namespace std;
-enum SymType {
-    noone, // belong to nothing
-    END, // end of code
-    ERR, // got an illegal symbol
-
-    IDENT, // 标识符
-    constch, // 字符 'a'
-    conststr, // 字符串 "hello world"
-    NUM, // 无符号整数 512
-
-    /*运算符*/
-    PLUS, // +
-    MINUS, // -
-    TIMES, // *
-    DIVIDE, // '/'
-
-    /*关系运算符*/
-    EQ, // ==
-    LEQ, // <=
-    GEQ, // >=
-    GRT, // >
-    LES, // <
-    NEQ, // !=
-
-    /*括号*/
-    Lpar, // '('
-    Rpar, // ')'
-    Lspar, // '['
-    Rspar, // ']'
-    Lbrac, // '{'
-    Rbrac, // '}'
-
-    /*其他字符*/
-    QUO, // ' 单引号
-    DQUO, // " 双引号
-    COMMA, // , 逗号
-    SEMICOLON, // ; 分号
-    COLON, // : 冒号
-    GIVEN, // = 赋值
-
-    /*关键字*/
-    symconst,
-    symint,
-    symchar,
-    symvoid,
-    symmain,
-    symif,
-    symelse,
-    symfor,
-    symswitch,
-    symcase,
-    symdefault,
-    symprintf,
-    symscanf,
-    symreturn
-};
-
+string GetTypeName(SymType t);
 class Symbol{
 public:
     Symbol(SymType type, int lineNum = -1, string name = "", int numVal = -1);

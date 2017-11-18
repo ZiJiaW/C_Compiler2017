@@ -1,26 +1,96 @@
-
-const int MAX = +1000;
+const int MAX = 1000;
 const char qop ='r', name = '5';
-const int index2a01 = -15, i1a = 0, p = +0;
+const int index2a01 = 15, i1a = 0, p = 0;
 const char c = '*';
 char x, a5;
 char _s;
 int i, aaw5, _errIndex;
 int hea125;
 char arr[101], arr2, arr3[255];
-int qw[102], _qw[17], _qw;
-
+int qw[102], qw2[17], qw3;
 int sq_dist(int x1, int x2, int x3, int x4)
 {
     int ret;
     ret = (x2-x1)*(x2-x1) + (x4-x3)*(x4-x3);
     return (ret+1)*2/2-1;
 }
-
 int fact(int n)
 {
     if( n == 1)
         return 1;
     return n*fact(n-1);
 }
+int reduce(int n)
+{
+    if(n==1)
+        return 1;
+    return n+reduce(n-1);
+}
+int reduce_to_m(int n, int m)
+{
+    int r;
+    for(r=0; n>=m; n=n-1)
+    {
+        r = r+n;
+    }
+    return r;
+}
+void test_print()
+{
+    printf("hello world",'a'+2*9/2);
+    printf("got a k/--!");
+    printf(index2a01*2/6+13);
+}
+char Lower(char ch)
+{
+    return ch+32;
+}
+void main(){
+    const int n = 81, n1 = -15, n3 = +13, n4 = 0, n6 = +0;
+    const char q = 'q', q2 = 's', q3 = '1', q4 = '+';
+    int i, k, j, arr[10], arr2[20], t;
+    char s1, s2[11], s3, s5[26], s4;
 
+    scanf(i,s1);
+    if(i<0)
+    {
+	printf("i shouldn't < 0!"); 
+	return 0;
+    }
+    if(i!=12/6*5+1-1)
+    {
+        printf("i should be 10, not ", i);
+        return 0;
+    } 
+    else
+        ;
+    switch(s1)
+    {
+        case '1': test_print();
+        case '2': {k = fact(i/2); printf("In case 2: k=",k);}
+        case '3': {
+            for(j=0; j<10; j = j+1)
+                arr[j]=n3+j;
+            k = i*(n+-5--7+2)/(arr[1]-4);
+            printf("In case 3: k=", k);
+        }
+        case '4':{
+            j = reduce(MAX/i+s1-'0');
+            printf("In case 4: reduce(104)=",j);
+        }
+        case '5':{
+            k = (MAX+n+n1*5-n6+q2-'s'-6)/10+q3-'1';
+            printf("In case 5: reduce_to_m(100,50)=", reduce_to_m(k,50));
+        }
+        case '6':{
+            for(s1 = 'A'; s1 <='Z'; s1=s1+1)
+                s5[s1-'A']=Lower(s1); 
+            printf(s5);
+        }
+        default:{
+            for(k=0;k<0;k=k+1) 
+                printf("default:",sq_dist(i,n,n1,n3));
+        }
+    }
+    return 0;
+}

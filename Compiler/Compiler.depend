@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1510840572 source:e:\compiler2017\compiler\errorhandler.cpp
+1510990646 source:e:\compiler2017\compiler\errorhandler.cpp
 	"ErrorHandler.h"
 
-1510840978 source:e:\compiler2017\compiler\lexer.cpp
+1510998432 source:e:\compiler2017\compiler\lexer.cpp
 	<iostream>
 	<string>
 	<fstream>
@@ -12,9 +12,10 @@
 	"Lexer.h"
 	"ErrorHandler.h"
 
-1510836794 e:\compiler2017\compiler\symbol.h
+1511002243 e:\compiler2017\compiler\symbol.h
 	<iostream>
 	<string>
+	"global.h"
 
 1510829372 e:\compiler2017\compiler\lexer.h
 	<iostream>
@@ -24,14 +25,17 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1510841105 source:e:\compiler2017\compiler\main.cpp
+1510999425 source:e:\compiler2017\compiler\main.cpp
 	<iostream>
 	<string>
+	<fstream>
 	"ErrorHandler.h"
 	"Lexer.h"
 	"Symbol.h"
+	"TableItem.h"
+	"SymbolTable.h"
 
-1510836845 source:e:\compiler2017\compiler\symbol.cpp
+1510891577 source:e:\compiler2017\compiler\symbol.cpp
 	<iostream>
 	<string>
 	"Symbol.h"
@@ -41,4 +45,32 @@
 	<string>
 	<vector>
 	<map>
+
+1510879704 source:e:\compiler2017\compiler\parser.cpp
+	"Parser.h"
+
+1510879602 e:\compiler2017\compiler\parser.h
+	"Lexer.h"
+
+1510990804 source:e:\compiler2017\compiler\middlecode.cpp
+
+1510990711 source:e:\compiler2017\compiler\symboltable.cpp
+
+1510996248 source:e:\compiler2017\compiler\tableitem.cpp
+	"TableItem.h"
+
+1511002263 e:\compiler2017\compiler\tableitem.h
+	<string>
+	<iostream>
+	"global.h"
+	"SymbolTable.h"
+
+1511002242 e:\compiler2017\compiler\symboltable.h
+	<iostream>
+	<map>
+	<string>
+	"global.h"
+	"TableItem.h"
+
+1511002212 e:\compiler2017\compiler\global.h
 

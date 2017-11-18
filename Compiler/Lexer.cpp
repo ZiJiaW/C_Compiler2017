@@ -48,7 +48,7 @@ void Lexer::NewChar()
     {
         curChar = '\0';
     }
-    else if(curIndex == -1 || curIndex < buffer.size()-1)
+    else if(curIndex == -1 || curIndex < int(buffer.size()-1))
     {
         curIndex++;
         curChar = buffer[curIndex];
@@ -175,6 +175,7 @@ Symbol Lexer::GetSym()
     }
     // 字符串: "hello world"
     // <字符串>::="{十进制编码为32,33,35-126的ASCII字符}"
+    // 根据文法，不考虑转义字符
     else if(curChar == '\"')
     {
         bool gotInvalidCh = false;
@@ -184,7 +185,7 @@ Symbol Lexer::GetSym()
             token.append(1, curChar);
             if(!(curChar != '\"' && curChar != '\n' && curChar != '\0'))
                 break;
-            if(!(curChar == 32 || curChar == 33 || (curChar>=35&&curChar<=126)))
+            if(!(curChar == 32 || curChar == 33 || (curChar >= 35 && curChar <= 126)))
             {
                 gotInvalidCh = true;
             }
