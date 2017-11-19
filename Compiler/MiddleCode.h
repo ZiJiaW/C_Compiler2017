@@ -6,10 +6,16 @@
 #include <map>
 #include "global.h"
 #include "TableItem.h"
-
+using namespace std;
+struct midInstr {
+    OpCode op;
+    TableItem* dst;
+    TableItem* src1;
+    TableItem* src2;
+};
 class MiddleCode {
 public:
-    void Insert();
+    void Generate(OpCode op, TableItem *dst, TableItem *src1 = NULL, TableItem *src2 = NULL);
 private:
     vector<midInstr> code;
 };

@@ -1,10 +1,19 @@
 #ifndef GLOBAL_H_INCLUDED
 #define GLOBAL_H_INCLUDED
-#include "TableItem.h"
 enum OpCode {
-    ADD, SUB, MUL, DIV,
-    GIV, STR, SETL, PARA, PUSH, CALL,
-    JMP, NEG, RET,
+    // 中间代码数据结构中存储符号表指针
+    // 因此可以获得变量的所有信息
+    // ADD t a b(t = a + b)
+    ADD = 100, SUB, MUL, DIV,
+    GIV, // GIV a b(a = b)
+    STR, // STR a(int a/char a/int a[10]/char a[10])
+    SETL, // SETL Label(标签名也需要加入符号表吧？？？)
+    PARA, // PARA a(函数参数定义)
+    PUSH, // PUSH a(函数参数入栈)
+    CALL, // CALL FUNC(调用函数FUNC)
+    JMP, // JMP LABEL(无条件跳转)
+    NEG, // NEG a b(a=-b)
+    RET, // RET a(return a)
     ARR_GIV, // []= a k n    a[k]=n
     GIV_ARR, // =[] n a k    n=a[k]
     BGR, // branch to label if src1 is greater than src2 : BGR LABEL src1 src2
@@ -13,10 +22,11 @@ enum OpCode {
     BNE, // branch if not equal
     BGE, // branch if greater or equal
     BLE, // branch if less or equal
-    WRITE, READ
+    WRITE, // WRITE t(printf(t) or printf("string")) const string should be inserted into Symbol table too!
+    READ   // READ t(scanf(t))
 };
 enum TableItemType {
-    CONST_INT, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR
+    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR
 };
 enum SymType {
     noone, // belong to nothing
@@ -73,11 +83,5 @@ enum SymType {
     symprintf,
     symscanf,
     symreturn
-};
-struct midInstr {
-    OpCode op;
-    TableItem* dst;
-    TableItem* src1;
-    TableItem* src2;
 };
 #endif // GLOBAL_H_INCLUDED
