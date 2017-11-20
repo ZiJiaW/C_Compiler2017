@@ -10,12 +10,24 @@ bool ErrorHandler::IsSuccessful()
 }
 void ErrorHandler::MapInit()
 {
+    // lexical error
     errorMap[1] = "Invalid integer beginning with [0]: ";
     errorMap[2] = "Invalid character in [const char] statement: ";
     errorMap[3] = "Invalid string with illegal character: ";
     errorMap[4] = "Missing [\"] when analyzing a string: ";
     errorMap[5] = "Unexpected single \'!\' : ";
     errorMap[6] = "Unrecognized token: ";
+
+    // syntax error
+    errorMap[7] = "Expect function definition here, Unexpected token: ";
+    errorMap[8] = "Missing main function, or your definition is invalid!";
+    errorMap[9] = "Unexpected token after main definition: ";
+    errorMap[10] = "Unexpected token after const statement: ";
+    errorMap[11] = "Illegal identifier: ";
+    errorMap[12] = "Expect a number here, got: ";
+    errorMap[13] = "Duplicate definition of identifier: ";
+    errorMap[14] = "Expect \',\' or \';\', got: ";
+    errorMap[15] = "Expect a character here, got: ";
 }
 /**
 print all errors!

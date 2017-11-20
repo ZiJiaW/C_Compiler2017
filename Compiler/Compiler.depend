@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1510990646 source:e:\compiler2017\compiler\errorhandler.cpp
+1511143203 source:e:\compiler2017\compiler\errorhandler.cpp
 	"ErrorHandler.h"
 
 1510998432 source:e:\compiler2017\compiler\lexer.cpp
@@ -46,17 +46,24 @@
 	<vector>
 	<map>
 
-1510879704 source:e:\compiler2017\compiler\parser.cpp
+1511144254 source:e:\compiler2017\compiler\parser.cpp
+	<vector>
+	"Symbol.h"
 	"Parser.h"
 
-1510879602 e:\compiler2017\compiler\parser.h
+1511143758 e:\compiler2017\compiler\parser.h
 	"Lexer.h"
+	"MiddleCode.h"
+	"SymbolTable.h"
+	"global.h"
 
-1510990804 source:e:\compiler2017\compiler\middlecode.cpp
+1511103022 source:e:\compiler2017\compiler\middlecode.cpp
+	"MiddleCode.h"
 
-1510990711 source:e:\compiler2017\compiler\symboltable.cpp
+1511002597 source:e:\compiler2017\compiler\symboltable.cpp
+	"SymbolTable.h"
 
-1510996248 source:e:\compiler2017\compiler\tableitem.cpp
+1511002521 source:e:\compiler2017\compiler\tableitem.cpp
 	"TableItem.h"
 
 1511002485 e:\compiler2017\compiler\tableitem.h
@@ -73,4 +80,12 @@
 	"TableItem.h"
 
 1511103004 e:\compiler2017\compiler\global.h
+
+1511103424 e:\compiler2017\compiler\middlecode.h
+	<iostream>
+	<string>
+	<vector>
+	<map>
+	"global.h"
+	"TableItem.h"
 

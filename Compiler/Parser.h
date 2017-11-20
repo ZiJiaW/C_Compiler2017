@@ -12,7 +12,13 @@ private:
     vector<Symbol> tokens;   // 保存所有获取的单词
     vector<Symbol>::iterator curToken; // 当前单词迭代器
     void NextToken();        // 获取下一个单词，对GetSym进一步封装
-    void BackToken(int n);   // 回退n个单词，用于预读判断
+    inline void BackToken(int n);   // 回退n个单词，用于预读判断
+    // Overloaded skip func
+    void SkipUntil(SymType type); // 跳读直到遇到某一类型的token
+    void SkipUntil(SymType type1, SymType type2);
+
+    void SetError(int errnum){eh.SetError(curToken->lineNum(), errnum, curToken->name());}
+    void SetError(int errnum, string name){eh.SetError(curToken->lineNum(), errnum, name);}
 
     Lexer &lex;              // 词法分析器调用
     ErrorHandler &eh;        // 错误处理器调用
@@ -20,6 +26,8 @@ private:
     SymbolTable &rootTable;   // 根符号表
     TableItem *curItem;      // 当前符号表项指针
     SymbolTable *curTbl;     // 当前符号表指针
+
+    bool InsertTable(string name, TableItemType type, int value);
 
     void Program();          // 程序入口
     void ConstState();       // 常量说明

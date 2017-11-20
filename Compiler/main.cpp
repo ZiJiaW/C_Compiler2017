@@ -7,7 +7,7 @@
 #include "TableItem.h"
 #include "SymbolTable.h"
 using namespace std;
-
+#define DEBUG
 int main()
 {
     // 打印词法分析结果于文件LexerResult中

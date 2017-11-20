@@ -1,64 +1,60 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
+	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="Parser.cpp" open="1" top="1" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1658" topLine="39" />
-		</Cursor>
-	</File>
 	<File name="ErrorHandler.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="422" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Symbol.cpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="584" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="global.h" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1679" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="Symbol.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="307" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="ErrorHandler.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="926" topLine="0" />
+			<Cursor1 position="455" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="Lexer.h" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="279" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Parser.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="988" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="TableItem.h" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="620" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Parser.cpp" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6263" topLine="249" />
+		</Cursor>
+	</File>
+	<File name="Symbol.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="664" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="SymbolTable.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="237" topLine="0" />
+			<Cursor1 position="301" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Symbol.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1606" topLine="15" />
+			<Cursor1 position="584" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="SymbolTable.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MiddleCode.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="344" topLine="0" />
+			<Cursor1 position="202" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Parser.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Lexer.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="538" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Lexer.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="279" topLine="2" />
-		</Cursor>
-	</File>
-	<File name="TableItem.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="381" topLine="12" />
+			<Cursor1 position="4332" topLine="126" />
 		</Cursor>
 	</File>
 	<File name="MiddleCode.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -66,19 +62,24 @@
 			<Cursor1 position="23" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="TableItem.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="global.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="396" topLine="1" />
+			<Cursor1 position="577" topLine="22" />
 		</Cursor>
 	</File>
-	<File name="MiddleCode.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="SymbolTable.cpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="202" topLine="0" />
+			<Cursor1 position="344" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Lexer.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TableItem.cpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1037" topLine="66" />
+			<Cursor1 position="381" topLine="10" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="213" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
