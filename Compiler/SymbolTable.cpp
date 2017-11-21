@@ -1,6 +1,6 @@
 #include "SymbolTable.h"
 
-SymbolTable::SymbolTable(){}
+SymbolTable::SymbolTable(): returnsth(0), returnnth(0){}
 
 /**
 1. insert a table item with name, type, value;
@@ -24,3 +24,4 @@ TableItem* SymbolTable::GetItem(string name)
     map<string, TableItem*>::iterator it = table.find(name);
     return it == table.end() ? NULL : it->second;
 }
+

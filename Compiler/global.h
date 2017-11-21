@@ -1,17 +1,17 @@
 #ifndef GLOBAL_H_INCLUDED
 #define GLOBAL_H_INCLUDED
 enum OpCode {
-    // ÖÐ¼ä´úÂëÊý¾Ý½á¹¹ÖÐ´æ´¢·ûºÅ±íÖ¸Õë
-    // Òò´Ë¿ÉÒÔ»ñµÃ±äÁ¿µÄËùÓÐÐÅÏ¢
+    // ä¸­é—´ä»£ç æ•°æ®ç»“æž„ä¸­å­˜å‚¨ç¬¦å·è¡¨æŒ‡é’ˆ
+    // å› æ­¤å¯ä»¥èŽ·å¾—å˜é‡çš„æ‰€æœ‰ä¿¡æ¯
     // ADD t a b(t = a + b)
     ADD = 100, SUB, MUL, DIV,
     GIV, // GIV a b(a = b)
     STR, // STR a(int a/char a/int a[10]/char a[10])
-    SETL, // SETL Label(±êÇ©ÃûÒ²ÐèÒª¼ÓÈë·ûºÅ±í°É£¿£¿£¿)
-    PARA, // PARA a(º¯Êý²ÎÊý¶¨Òå)
-    PUSH, // PUSH a(º¯Êý²ÎÊýÈëÕ»)
-    CALL, // CALL FUNC(µ÷ÓÃº¯ÊýFUNC)
-    JMP, // JMP LABEL(ÎÞÌõ¼þÌø×ª)
+    SETL, // SETL Label(æ ‡ç­¾åä¹Ÿéœ€è¦åŠ å…¥ç¬¦å·è¡¨å§ï¼Ÿï¼Ÿï¼Ÿ)
+    PARA, // PARA a(å‡½æ•°å‚æ•°å®šä¹‰)
+    PUSH, // PUSH a(å‡½æ•°å‚æ•°å…¥æ ˆ)
+    CALL, // CALL FUNC(è°ƒç”¨å‡½æ•°FUNC)
+    JMP, // JMP LABEL(æ— æ¡ä»¶è·³è½¬)
     NEG, // NEG a b(a=-b)
     RET, // RET a(return a)
     ARR_GIV, // []= a k n    a[k]=n
@@ -33,18 +33,18 @@ enum SymType {
     END, // end of code
     ERR, // got an illegal symbol
 
-    IDENT, // ±êÊ¶·û
-    constch, // ×Ö·û 'a'
-    conststr, // ×Ö·û´® "hello world"
-    NUM, // ÎÞ·ûºÅÕûÊý 512
+    IDENT, // æ ‡è¯†ç¬¦
+    constch, // å­—ç¬¦'a'
+    conststr, // å­—ç¬¦ä¸² "hello world"
+    NUM, // æ— ç¬¦å·æ•´æ•° 512
 
-    /*ÔËËã·û*/
+    /*è¿ç®—ç¬¦*/
     PLUS, // +
     MINUS, // -
     TIMES, // *
     DIVIDE, // '/'
 
-    /*¹ØÏµÔËËã·û*/
+    /*å…³ç³»è¿ç®—ç¬¦*/
     EQ, // ==
     LEQ, // <=
     GEQ, // >=
@@ -52,7 +52,7 @@ enum SymType {
     LES, // <
     NEQ, // !=
 
-    /*À¨ºÅ*/
+    /*æ‹¬å·*/
     Lpar, // '('
     Rpar, // ')'
     Lspar, // '['
@@ -60,15 +60,15 @@ enum SymType {
     Lbrac, // '{'
     Rbrac, // '}'
 
-    /*ÆäËû×Ö·û*/
-    QUO, // ' µ¥ÒýºÅ
-    DQUO, // " Ë«ÒýºÅ
-    COMMA, // , ¶ººÅ
-    SEMICOLON, // ; ·ÖºÅ
-    COLON, // : Ã°ºÅ
-    GIVEN, // = ¸³Öµ
+    /*å…¶ä»–å­—ç¬¦*/
+    QUO, // ' å•å¼•å·
+    DQUO, // " åŒå¼•å·
+    COMMA, // , é€—å·
+    SEMICOLON, // ; åˆ†å·
+    COLON, // : å†’å·
+    GIVEN, // = èµ‹å€¼
 
-    /*¹Ø¼ü×Ö*/
+    /*å…³é”®å­—*/
     symconst,
     symint,
     symchar,

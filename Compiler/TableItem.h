@@ -8,7 +8,7 @@ using namespace std;
 class SymbolTable;
 class TableItem {
 public:
-    TableItem(string name, TableItemType type, int value);
+    TableItem(string name, TableItemType type, int value = 0);
 
     string name();
     TableItemType type();
@@ -16,11 +16,14 @@ public:
     int paramCount();
     SymbolTable* funcField();
     int length();
+    int *array();
 
     void SetValue(int value);
     void SetParamCount(int cot);
     void SetLength(int len);
     void SetField(SymbolTable *f);
+
+    vector<string> paraName;
 private:
     string _name;
     TableItemType _type;
@@ -28,6 +31,7 @@ private:
     int _paramCount;
     SymbolTable *_funcField;
     int _arrayLen;
+    int *_array; // array content(use int to store both int and char)
 };
 
 

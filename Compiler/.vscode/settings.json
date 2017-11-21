@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.ipynb": "html",
+        "system_error": "cpp",
+        "xlocale": "cpp",
+        "xtr1common": "cpp"
+    }
+}

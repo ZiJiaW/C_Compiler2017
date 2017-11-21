@@ -12,7 +12,7 @@
 	"Lexer.h"
 	"ErrorHandler.h"
 
-1511002243 e:\compiler2017\compiler\symbol.h
+1511228197 e:\compiler2017\compiler\symbol.h
 	<iostream>
 	<string>
 	"global.h"
@@ -79,7 +79,7 @@
 	"global.h"
 	"TableItem.h"
 
-1511103004 e:\compiler2017\compiler\global.h
+1511227820 e:\compiler2017\compiler\global.h
 
 1511103424 e:\compiler2017\compiler\middlecode.h
 	<iostream>

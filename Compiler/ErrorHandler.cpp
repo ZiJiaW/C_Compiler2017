@@ -22,12 +22,19 @@ void ErrorHandler::MapInit()
     errorMap[7] = "Expect function definition here, Unexpected token: ";
     errorMap[8] = "Missing main function, or your definition is invalid!";
     errorMap[9] = "Unexpected token after main definition: ";
-    errorMap[10] = "Unexpected token after const statement: ";
+    errorMap[10] = "Expect type(int/char) statement, got: ";
     errorMap[11] = "Illegal identifier: ";
     errorMap[12] = "Expect a number here, got: ";
     errorMap[13] = "Duplicate definition of identifier: ";
     errorMap[14] = "Expect \',\' or \';\', got: ";
     errorMap[15] = "Expect a character here, got: ";
+    errorMap[16] = "Invalid array size: ";
+    errorMap[17] = "Expect \']\', got: ";
+    errorMap[18] = "Expect \'(\', got: ";
+    errorMap[19] = "Expect \')\', got: ";
+    errorMap[20] = "Expect \'{\', got: ";
+    errorMap[21] = "Expect \'}\', got: ";
+    errorMap[22] = "Expect \';\', got: ";
 }
 /**
 print all errors!

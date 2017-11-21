@@ -7,59 +7,61 @@
 class Parser {
 public:
     Parser(Lexer &lex, ErrorHandler &eh, MiddleCode &mc, SymbolTable &rt);
-    void StartParsing();     // ·ÖÎöÈë¿Ú
+    void StartParsing();     // start entry
 private:
-    vector<Symbol> tokens;   // ±£´æËùÓĞ»ñÈ¡µÄµ¥´Ê
-    vector<Symbol>::iterator curToken; // µ±Ç°µ¥´Êµü´úÆ÷
-    void NextToken();        // »ñÈ¡ÏÂÒ»¸öµ¥´Ê£¬¶ÔGetSym½øÒ»²½·â×°
-    inline void BackToken(int n);   // »ØÍËn¸öµ¥´Ê£¬ÓÃÓÚÔ¤¶ÁÅĞ¶Ï
+    vector<Symbol> tokens;   // ä¿å­˜æ‰€æœ‰å•è¯
+    vector<Symbol>::iterator curToken; // æŒ‡å‘å½“å‰æ­£åœ¨å¤„ç†çš„å•è¯
+    void NextToken();        // è·å–ä¸‹ä¸€ä¸ªå•è¯
+    inline void BackToken(int n);   // å›é€€nä¸ªå•è¯
     // Overloaded skip func
-    void SkipUntil(SymType type); // Ìø¶ÁÖ±µ½Óöµ½Ä³Ò»ÀàĞÍµÄtoken
+    void SkipUntil(SymType type); // è·³è¯»
     void SkipUntil(SymType type1, SymType type2);
+    bool SkipInlineUntil(SymType type); // è¡Œå†…è·³è¯»ï¼Œå¦‚æœæ²¡æ‰¾åˆ°è·³è¯»å•å…ƒï¼Œè·³è‡³ä¸‹ä¸€è¡Œé¦–å¹¶è¿”å›false
 
     void SetError(int errnum){eh.SetError(curToken->lineNum(), errnum, curToken->name());}
     void SetError(int errnum, string name){eh.SetError(curToken->lineNum(), errnum, name);}
 
-    Lexer &lex;              // ´Ê·¨·ÖÎöÆ÷µ÷ÓÃ
-    ErrorHandler &eh;        // ´íÎó´¦ÀíÆ÷µ÷ÓÃ
-    MiddleCode &mc;          // ÖĞ¼ä´úÂë±íµ÷ÓÃ
-    SymbolTable &rootTable;   // ¸ù·ûºÅ±í
-    TableItem *curItem;      // µ±Ç°·ûºÅ±íÏîÖ¸Õë
-    SymbolTable *curTbl;     // µ±Ç°·ûºÅ±íÖ¸Õë
+    Lexer &lex;              // è¯æ³•åˆ†æå™¨
+    ErrorHandler &eh;        // é”™è¯¯å¤„ç†å™¨
+    MiddleCode &mc;          // ä¸­é—´ä»£ç è¡¨
+    SymbolTable &rootTable;   // æ ¹ç¬¦å·è¡¨
+    TableItem *curItem;      // å½“å‰ç¬¦å·è¡¨é¡¹æŒ‡é’ˆ
+    SymbolTable *curTbl;     // å½“å‰ç¬¦å·è¡¨æŒ‡é’ˆ
 
-    bool InsertTable(string name, TableItemType type, int value);
+    bool InsertTable(string name, TableItemType type, int value = 0);
 
-    void Program();          // ³ÌĞòÈë¿Ú
-    void ConstState();       // ³£Á¿ËµÃ÷
-    void VarState();         // ±äÁ¿ËµÃ÷
-    void FuncWithRet();      // ÓĞ·µ»ØÖµº¯Êı¶¨Òå
-    void FuncWithoutRet();   // ÎŞ·µ»ØÖµº¯Êı¶¨Òå
-    void MainFunc();         // Ö÷º¯ÊıÈë¿Ú
-    void ParaList();         // º¯Êı¶¨Òå²ÎÊı±í
-    void ComplexSentence();  // ¸´ºÏÓï¾ä
+    void Program();          // ç¨‹åºå…¥å£1
+    void ConstState();       // å¸¸é‡è¯´æ˜1
+    void VarState();         // å˜é‡è¯´æ˜1
+    void FuncWithRet();      // æœ‰è¿”å›å€¼å‡½æ•°1
+    void FuncWithoutRet();   // æ— è¿”å›å€¼å‡½æ•°
+    void MainFunc();         // ä¸»å‡½æ•°
+    void ParaList();         // å‚æ•°è¡¨1
+    void ComplexSentence();  // å¤åˆè¯­å¥1
 
-    void SentenceList();     // Óï¾äÁĞ
-    void Sentence();         // Óï¾ä
+    void SentenceList();     // è¯­å¥åˆ—1
+    void Sentence();         // è¯­å¥1
 
-    void GiveState();        // ¸³ÖµÓï¾ä
+    void GiveState();        // èµ‹å€¼è¯­å¥
 
-    void IfState();          // Ìõ¼şÓï¾ä
-    void Condition();        // Ìõ¼ş
+    void IfState();          // æ¡ä»¶è¯­å¥
+    void Condition();        // æ¡ä»¶
 
-    void ForState();         // Ñ­»·Óï¾ä
+    void ForState();         // å¾ªç¯è¯­å¥
 
-    void SwitchState();      // Çé¿öÓï¾ä
-    void CaseList();         // Çé¿ö±í
-    void CaseState();        // Çé¿ö×ÓÓï¾ä
-    void DefaultState();     // Ä¬ÈÏÇé¿öÓï¾ä
+    void SwitchState();      // æƒ…å†µè¯­å¥
+    void CaseList();         // æƒ…å†µè¡¨
+    void CaseState();        // æƒ…å†µå­è¯­å¥
+    void DefaultState();     // é»˜è®¤
 
-    void CallFuncState();    // º¯Êıµ÷ÓÃÓï¾ä
-    void PrintState();       // Ğ´Óï¾ä
-    void ScanfState();       // ¶ÁÓï¾ä
+    void CallFuncState();    // å‡½æ•°è°ƒç”¨è¯­å¥
+    void PrintState();       // æ‰“å°
+    void ScanfState();       // è¯»
+    void ReturnState();      // è¿”å›è¯­å¥
 
-    void Expression();       // ±í´ïÊ½
-    void Term();             // Ïî
-    void Factor();           // Òò×Ó
+    void Expression();       // è¡¨è¾¾å¼
+    void Term();             // é¡¹
+    void Factor();           // å› å­
 };
 
 #endif // PARSER_H_INCLUDED

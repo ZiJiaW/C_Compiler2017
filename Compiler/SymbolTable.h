@@ -13,8 +13,15 @@ public:
     TableItem* Insert(string name, TableItemType type, int value);
     TableItem* GetItem(string name);
     SymbolTable();
+    void HasReturnedSth(){returnsth++;} // got: return sth;
+    void HasReturnedNth(){returnnth++;} // got: return;
+
+    bool funcWithRetValid(){return returnsth && !returnnth;}
+    bool funcWithoutRetValid(){return !returnsth;}
 private:
     map<string, TableItem*> table;
+    int returnsth;
+    int returnnth;
 };
 
 #endif // SYMBOLTABLE_H_INCLUDED

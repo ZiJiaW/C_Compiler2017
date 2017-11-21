@@ -96,7 +96,7 @@ Symbol Lexer::GetSym()
         return Symbol(END);
     }
     string token(1, curChar);
-    // ±êÊ¶·û¿ªÍ·: a---Z or _
+    // æ ‡è¯†ç¬¦å¼€å¤´: a---Z or _
     if(isalpha(curChar) || curChar == '_')
     {
         while(true)
@@ -122,7 +122,7 @@ Symbol Lexer::GetSym()
             return Symbol(it->second, lineNum, token);
         }
     }
-    // Êı×Ö¿ªÍ·: 0--9
+    // æ•°å­—: 0--9
     else if(isdigit(curChar))
     {
         while(true)
@@ -149,10 +149,10 @@ Symbol Lexer::GetSym()
             return Symbol(NUM, lineNum, token, val);
         }
     }
-    // ×Ö·û: 'a', '2'
-    // <×Ö·û>::='<¼Ó·¨ÔËËã·û>'|'<³Ë·¨ÔËËã·û>'|'<×ÖÄ¸>'|'<Êı×Ö>'
-    // <Êı×Ö>::=£°|<·ÇÁãÊı×Ö>
-    // <×ÖÄ¸>::= _|a|...|z|A|...|Z
+    // å­—ç¬¦: 'a', '2'
+    // <å­—ç¬¦>::='<åŠ æ³•è¿ç®—ç¬¦>'|'<ä¹˜æ³•è¿ç®—ç¬¦>'|'<å­—æ¯>'|'<æ•°å­—>'
+    // <æ•°å­—>::=ï¼|<éé›¶æ•°å­—>
+    // <å­—æ¯>::= _|a|...|z|A|...|Z
     else if(curChar == '\'')
     {
         NewChar();
@@ -173,9 +173,9 @@ Symbol Lexer::GetSym()
         Skip();
         return Symbol(ERR, lineNum, token);
     }
-    // ×Ö·û´®: "hello world"
-    // <×Ö·û´®>::="{Ê®½øÖÆ±àÂëÎª32,33,35-126µÄASCII×Ö·û}"
-    // ¸ù¾İÎÄ·¨£¬²»¿¼ÂÇ×ªÒå×Ö·û
+    // å­—ç¬¦ä¸²: "hello world"
+    // <å­—ç¬¦ä¸²>::="{åè¿›åˆ¶ç¼–ç ä¸º32,33,35-126çš„ASCIIå­—ç¬¦}"
+    // æ ¹æ®æ–‡æ³•ï¼Œä¸è€ƒè™‘è½¬ä¹‰å­—ç¬¦
     else if(curChar == '\"')
     {
         bool gotInvalidCh = false;
