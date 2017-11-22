@@ -35,6 +35,8 @@ void ErrorHandler::MapInit()
     errorMap[20] = "Expect \'{\', got: ";
     errorMap[21] = "Expect \'}\', got: ";
     errorMap[22] = "Expect \';\', got: ";
+    errorMap[23] = "Can't find a return statement in function: ";
+    errorMap[24] = "Got a return statement in a void function: ";
 }
 /**
 print all errors!

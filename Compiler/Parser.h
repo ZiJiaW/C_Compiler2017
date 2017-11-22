@@ -29,14 +29,15 @@ private:
     SymbolTable *curTbl;     // 当前符号表指针
 
     bool InsertTable(string name, TableItemType type, int value = 0);
+    string GetUniqueName();
 
     void Program();          // 程序入口1
     void ConstState();       // 常量说明1
     void VarState();         // 变量说明1
     void FuncWithRet();      // 有返回值函数1
-    void FuncWithoutRet();   // 无返回值函数
-    void MainFunc();         // 主函数
-    void ParaList();         // 参数表1
+    void FuncWithoutRet();   // 无返回值函数1
+    void MainFunc();         // 主函数1
+    void ParaList(TableItem* funcitem);// 参数表 需要传函数在根符号表的符号表项，用于记录该函数参数内容
     void ComplexSentence();  // 复合语句1
 
     void SentenceList();     // 语句列1
@@ -58,10 +59,10 @@ private:
     void PrintState();       // 打印
     void ScanfState();       // 读
     void ReturnState();      // 返回语句
-
-    void Expression();       // 表达式
-    void Term();             // 项
-    void Factor();           // 因子
+    // 表达式生成的临时变量同样加入符号表，其标识符不重复。
+    TableItem* Expression();       // 表达式
+    TableItem* Term();             // 项
+    TableItem* Factor();           // 因子
 };
 
 #endif // PARSER_H_INCLUDED

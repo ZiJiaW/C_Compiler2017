@@ -459,7 +459,7 @@ void Parser::FuncWithRet()
     }
     NextToken();
     // into paralist
-    ParaList();
+    ParaList(curItem);
     // gen middle code here: int/char funcname() *****
 
     // now ) next {
@@ -488,18 +488,23 @@ void Parser::FuncWithRet()
         return;
     }
     NextToken();
+    // should judge if this function has returned sth
+    if(!curTbl->funcWithRetValid())
+    {
+        SetError(23, name); // just set an error
+    }
     curTbl = &rootTable;
     return;
 }
 /**
  * ＜参数表＞::=＜类型标识符＞＜标识符＞{,＜类型标识符＞＜标识符＞}|＜空＞
 */
-void Parser::ParaList()
+void Parser::ParaList(TableItem* funcItem)
 {
     int paraCount = 0;
     if(curToken->type() == Rpar)
     {
-        curItem->SetParamCount(paraCount); // 无参数
+        funcItem->SetParamCount(paraCount); // 无参数
         return;
     }
     else
@@ -527,7 +532,7 @@ void Parser::ParaList()
                 break;
             }
             string name = curToken->name();
-            (curItem->paraName).push_back(name); // store para name in func item
+            (funcItem->paraName).push_back(name); // store para name in func item
             paraCount++;
             if(!InsertTable(name, tp))
             {
@@ -549,6 +554,7 @@ void Parser::ParaList()
             }
         }
     }
+    funcItem->SetParamCount(paraCount);
     return;
 }
 
@@ -681,7 +687,164 @@ void Parser::Sentence()
     }
     return;
 }
+/**
+ * ＜无返回值函数定义＞  ::= void＜标识符＞‘(’＜参数＞‘)’‘{’＜复合语句＞‘}’
+*/
+void Parser::FuncWithoutRet()
+{
+    TableItemType funcType = VOID_FUNC;
+    NextToken();
+    if(curToken->type() != IDENT)
+    {
+        SetError(11);
+        SkipUntil(Rbrac);
+        return;
+    }
+    string name = curToken->name();
+    if(!InsertTable(name, funcType))
+    {
+        SetError(13);
+        SkipUntil(Rbrac);
+        return;
+    }
+    // now curTbl points to this func's field
+    // curItem points to this func's item
+    NextToken();
+    if(curToken->type() != Lpar)
+    {
+        SetError(18);
+        SkipUntil(Rbrac);
+        curTbl = &rootTable; // restore curTbl
+        return;
+    }
+    NextToken();
+    // into paralist
+    ParaList(curItem);
+    // gen middle code here: int/char funcname() *****
 
+    // now ) next {
+    if(curToken->type() != Rpar)
+    {
+        SetError(19);
+        SkipUntil(Lbrac);
+    }
+    else
+    {
+        NextToken();
+        if(curToken->type() != Lbrac)
+        {
+            SetError(20);
+            SkipUntil(Rbrac);
+            curTbl = &rootTable;
+            return;
+        }
+        NextToken();
+    }
+    ComplexSentence();
+    if(curToken->type() != Rbrac)
+    {
+        SetError(21);
+        curTbl = &rootTable;
+        return;
+    }
+    NextToken();
+    // should judge if this function has returned sth
+    if(!curTbl->funcWithoutRetValid())
+    {
+        SetError(24, name); // just set an error
+    }
+    curTbl = &rootTable;
+    return;
+}
+/**
+ * ＜主函数＞    ::= void main‘(’‘)’ ‘{’＜复合语句＞‘}’
+ * ident void or main has been confirmed outside
+*/
+void Parser::MainFunc()
+{
+    NextToken();
+    NextToken();
+    // gen middle code here: SETL main
+
+
+    if(curToken->type() != Lpar)
+    {
+        SetError(18);
+        SkipUntil(Lbrac);
+    }
+    else
+    {
+        NextToken();
+        if(curToken->type() != Rpar)
+        {
+            SetError(19);
+            SkipUntil(Lbrac);
+        }
+        else
+        {
+            NextToken();
+            if(curToken->type() != Lbrac)
+            {
+                SetError(20);
+            }
+            else
+            {
+                NextToken();
+            }
+        }
+    }
+    if(!InsertTable("main", VOID_FUNC))
+    {
+        SetError(13, "main");
+    }
+    else
+    {
+        curItem->SetParamCount(0);
+    }
+    ComplexSentence();
+    if(curToken->type() != Rbrac)
+    {
+        SetError(21);
+    }
+    else if(!curTbl->funcWithoutRetValid())
+    {
+        SetError(24, "main");
+    }
+    else
+    {// gen middle code: end
+
+    }
+    NextToken();
+}
+/**
+ * ＜表达式＞ ::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}
+*/
+TableItem* Parser::Expression()
+{
+
+}
+/**
+ * ＜项＞ ::= ＜因子＞{＜乘法运算符＞＜因子＞}
+*/
+TableItem* Parser::Term()
+{
+
+}
+/**
+ * ＜因子＞::= ＜标识符＞｜＜标识符＞‘[’＜表达式＞‘]’｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞|‘(’＜表达式＞‘)’
+*/
+TableItem* Parser::Factor()
+{
+
+}
+/**
+ * generate a new name for temp varible in expression
+ * this name must be unique
+*/
+string Parser::GetUniqueName()
+{
+    
+}
 
 
 
