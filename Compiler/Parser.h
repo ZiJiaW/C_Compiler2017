@@ -8,7 +8,14 @@ class Parser {
 public:
     Parser(Lexer &lex, ErrorHandler &eh, MiddleCode &mc, SymbolTable &rt);
     void StartParsing();     // start entry
+    vector<TableItem*> TempTable;   // 临时变量表，用于存储表达式中生成的中间变量，和常量
 private:
+    int tempIndex;  // 当前临时变量在临时变量表中的位置
+
+    TableItem* NewTmpVal();     // 在临时变量表中添加临时变量，并返回其表项指针
+    TableItem* NewTmpVal(int constval); // 添加整数常量，返回表项指针
+    TableItem* NewTmpVal(char constchar); // 添加字符常量，返回表项指针
+
     vector<Symbol> tokens;   // 保存所有单词
     vector<Symbol>::iterator curToken; // 指向当前正在处理的单词
     void NextToken();        // 获取下一个单词
@@ -26,10 +33,12 @@ private:
     MiddleCode &mc;          // 中间代码表
     SymbolTable &rootTable;   // 根符号表
     TableItem *curItem;      // 当前符号表项指针
+    TableItem *curFunc;      // 当前正在处理的函数的符号表项指针
     SymbolTable *curTbl;     // 当前符号表指针
 
     bool InsertTable(string name, TableItemType type, int value = 0);
-    string GetUniqueName();
+    TableItem* GetItemByName(string name);
+    string GetTempName();
 
     void Program();          // 程序入口1
     void ConstState();       // 常量说明1
@@ -37,7 +46,7 @@ private:
     void FuncWithRet();      // 有返回值函数1
     void FuncWithoutRet();   // 无返回值函数1
     void MainFunc();         // 主函数1
-    void ParaList(TableItem* funcitem);// 参数表 需要传函数在根符号表的符号表项，用于记录该函数参数内容
+    void ParaList(TableItem* funcitem);// 参数表 需要传函数在根符号表的符号表项，用于记录该函数参数内容1
     void ComplexSentence();  // 复合语句1
 
     void SentenceList();     // 语句列1
@@ -55,14 +64,14 @@ private:
     void CaseState();        // 情况子语句
     void DefaultState();     // 默认
 
-    void CallFuncState();    // 函数调用语句
+    TableItem* CallFuncState();    // 函数调用语句
     void PrintState();       // 打印
     void ScanfState();       // 读
     void ReturnState();      // 返回语句
-    // 表达式生成的临时变量同样加入符号表，其标识符不重复。
-    TableItem* Expression();       // 表达式
-    TableItem* Term();             // 项
-    TableItem* Factor();           // 因子
+    // 表达式生成的临时变量同样加入临时变量表
+    TableItem* Expression();       // 表达式1
+    TableItem* Term();             // 项1
+    TableItem* Factor();           // 因子1
 };
 
 #endif // PARSER_H_INCLUDED

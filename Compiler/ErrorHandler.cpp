@@ -37,6 +37,8 @@ void ErrorHandler::MapInit()
     errorMap[22] = "Expect \';\', got: ";
     errorMap[23] = "Can't find a return statement in function: ";
     errorMap[24] = "Got a return statement in a void function: ";
+    errorMap[25] = "Undefined identifier: ";
+    errorMap[26] = "Invalid reference to: ";
 }
 /**
 print all errors!

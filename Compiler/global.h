@@ -8,14 +8,15 @@ enum OpCode {
     GIV, // GIV a b(a = b)
     STR, // STR a(int a/char a/int a[10]/char a[10])
     SETL, // SETL Label(标签名也需要加入符号表吧？？？)
+    FUNC, // 函数声明
     PARA, // PARA a(函数参数定义)
     PUSH, // PUSH a(函数参数入栈)
     CALL, // CALL FUNC(调用函数FUNC)
     JMP, // JMP LABEL(无条件跳转)
     NEG, // NEG a b(a=-b)
     RET, // RET a(return a)
-    ARR_GIV, // []= a k n    a[k]=n
-    GIV_ARR, // =[] n a k    n=a[k]
+    GIV_ARR, // []= a k n    a[k]=n
+    ARR_GIV, // =[] n a k    n=a[k]
     BGR, // branch to label if src1 is greater than src2 : BGR LABEL src1 src2
     BEQ, // branch if equal
     BLS, // branch if less
@@ -23,10 +24,12 @@ enum OpCode {
     BGE, // branch if greater or equal
     BLE, // branch if less or equal
     WRITE, // WRITE t(printf(t) or printf("string")) const string should be inserted into Symbol table too!
-    READ   // READ t(scanf(t))
+    READ,   // READ t(scanf(t))
+    END_FUNC, // 函数结束
+    END_PROC, // 程序结束
 };
 enum TableItemType {
-    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR
+    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR, TMP
 };
 enum SymType {
     noone, // belong to nothing

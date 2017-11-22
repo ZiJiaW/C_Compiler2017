@@ -4,7 +4,7 @@
 using namespace std;
 
 Parser::Parser(Lexer &_lex, ErrorHandler &_eh, MiddleCode &_mc, SymbolTable &_rt):
-    lex(_lex), eh(_eh), mc(_mc), rootTable(_rt), curItem(NULL), curTbl(NULL){}
+    lex(_lex), eh(_eh), mc(_mc), rootTable(_rt), curItem(NULL), curTbl(NULL), tempIndex(-1){}
 /***
 1. Call GetSym() to get next token if no back before;
 2. else just set curToken to points to next token;
@@ -214,19 +214,37 @@ void Parser::ConstState()
                     continue;
                 }
                 NextToken();
-                if(curToken->type() != NUM)
+                // 进入整数部分 const int a = +12,b = -23, c= 20, d=0;
+                int num; // 记录整数常量的值
+                if(curToken->type() == NUM)
+                {
+                    num = curToken->numVal();
+                }
+                else if(curToken->type() == PLUS || curToken->type() == MINUS)
+                {
+                    bool plus = curToken->type() == PLUS;
+                    NextToken();
+                    if(curToken->type() != NUM)
+                    {
+                        SetError(12);
+                        SkipUntil(SEMICOLON, COMMA);
+                        continue;
+                    }
+                    num = plus ? curToken->numVal() : -curToken->numVal();
+                }
+                else
                 {
                     SetError(12);
                     SkipUntil(SEMICOLON, COMMA);
                     continue;
                 }
-                if(!InsertTable(name, CONST_INT, curToken->numVal()))
+                if(!InsertTable(name, CONST_INT, num))
                 {
                     SetError(13, name);// 重复声明，不跳读，因为语法成分是对的
                 }
                 else
                 {// gen middle code
-
+                    mc.Generate(STR, curItem);
                 }
                 NextToken();
                 if(curToken->type() == COMMA)
@@ -283,7 +301,7 @@ void Parser::ConstState()
                 }
                 else
                 {// gen middle code
-
+                    mc.Generate(STR, curItem);
                 }
                 NextToken();
                 if(curToken->type() == COMMA)
@@ -345,7 +363,7 @@ void Parser::VarState()
                 }
                 // todo: gen middle code here
                 {
-
+                    mc.Generate(STR, curItem);
                 }
                 NextToken();
                 continue;
@@ -380,7 +398,7 @@ void Parser::VarState()
                             curItem->SetLength(arraysize);
                             // todo: gen middle code
                             {
-
+                                mc.Generate(STR, curItem);
                             }
                         }
                     }
@@ -458,10 +476,11 @@ void Parser::FuncWithRet()
         return;
     }
     NextToken();
+    // gen middle code here: int/char funcname() *****
+    mc.Generate(FUNC, curItem);
+    curFunc = curItem;
     // into paralist
     ParaList(curItem);
-    // gen middle code here: int/char funcname() *****
-
     // now ) next {
     if(curToken->type() != Rpar)
     {
@@ -540,7 +559,7 @@ void Parser::ParaList(TableItem* funcItem)
             }
             else
             {// gen middle code: para name(curItem)
-
+                mc.Generate(PARA, curItem);
             }
             NextToken();
             if(curToken->type() == COMMA)
@@ -590,7 +609,9 @@ void Parser::ComplexSentence()
 }
 void Parser::SentenceList()
 {
-    while(curToken->type() != Rbrac)
+    while(curToken->type() == symif || curToken->type() == symfor || curToken->type() == Lbrac
+        ||curToken->type() == IDENT || curToken->type() == symprintf || curToken->type() == symscanf
+        || curToken->type() == symswitch || curToken->type() == symreturn || curToken->type() == SEMICOLON)
     {
         Sentence();
     }
@@ -644,6 +665,7 @@ void Parser::Sentence()
                 BackToken(1);
                 CallFuncState();
             }
+            break;
         }
         case symprintf:
         {
@@ -718,10 +740,11 @@ void Parser::FuncWithoutRet()
         return;
     }
     NextToken();
+    // gen middle code here: int/char funcname() *****
+    mc.Generate(FUNC, curItem);
+    curFunc = curItem;
     // into paralist
     ParaList(curItem);
-    // gen middle code here: int/char funcname() *****
-
     // now ) next {
     if(curToken->type() != Rpar)
     {
@@ -753,6 +776,7 @@ void Parser::FuncWithoutRet()
     {
         SetError(24, name); // just set an error
     }
+    mc.Generate(END_FUNC, curFunc);
     curTbl = &rootTable;
     return;
 }
@@ -764,9 +788,7 @@ void Parser::MainFunc()
 {
     NextToken();
     NextToken();
-    // gen middle code here: SETL main
-
-
+    // gen middle code here: FUNC main
     if(curToken->type() != Lpar)
     {
         SetError(18);
@@ -800,7 +822,10 @@ void Parser::MainFunc()
     else
     {
         curItem->SetParamCount(0);
+        // gen middle code here: FUNC main
+        mc.Generate(FUNC, curItem);
     }
+    TableItem* nowfunc = curItem; // 保存当前函数原型的符号表指针
     ComplexSentence();
     if(curToken->type() != Rbrac)
     {
@@ -811,8 +836,8 @@ void Parser::MainFunc()
         SetError(24, "main");
     }
     else
-    {// gen middle code: end
-
+    {// gen middle code: end of program
+        mc.Generate(END_PROC, nowfunc);
     }
     NextToken();
 }
@@ -821,31 +846,202 @@ void Parser::MainFunc()
 */
 TableItem* Parser::Expression()
 {
-
+    bool gotminus = false;
+    if(curToken->type() == PLUS)
+    {
+        NextToken();
+    }
+    else if(curToken->type() == MINUS)
+    {
+        gotminus = true;
+        NextToken();
+    }
+    TableItem* tmp1 = Term();
+    if(gotminus)
+    {
+        TableItem* tmp2 = NewTmpVal();
+        mc.Generate(NEG, tmp2, tmp1);
+    }
+    while(curToken->type() == PLUS || curToken->type() == MINUS)
+    {
+        OpCode op = curToken->type() == PLUS ? ADD : SUB;
+        TableItem* src1 = TempTable[tempIndex];
+        NextToken();
+        TableItem* src2 = Term();
+        if(!src2)
+            return NULL;
+        TableItem* dst = NewTmpVal();
+        mc.Generate(op, dst, src1, src2);
+    }
+    return TempTable[tempIndex];
 }
 /**
  * ＜项＞ ::= ＜因子＞{＜乘法运算符＞＜因子＞}
 */
 TableItem* Parser::Term()
 {
-
+    Factor();
+    if(!(curToken->type() == TIMES || curToken->type() == DIVIDE))
+        return TempTable[tempIndex];
+    while(curToken->type() == TIMES || curToken->type() == DIVIDE)
+    {
+        OpCode op = curToken->type() == TIMES ? MUL : DIV;
+        TableItem* src1 = TempTable[tempIndex];
+        NextToken();
+        TableItem* src2 = Factor();
+        if(!src2)
+            return NULL;
+        TableItem* dst = NewTmpVal();
+        mc.Generate(op, dst, src1, src2);
+    }
+    return TempTable[tempIndex];
 }
 /**
  * ＜因子＞::= ＜标识符＞｜＜标识符＞‘[’＜表达式＞‘]’｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞|‘(’＜表达式＞‘)’
+ * first: IDENT, +-, NUM, constch, (
 */
 TableItem* Parser::Factor()
 {
-
+    if(curToken->type() == IDENT) // a, a[10], sum(a, b)
+    {
+        string name = curToken->name();
+        NextToken();
+        if(curToken->type() == Lspar) // a[10*2]
+        {
+            TableItem* src1 = GetItemByName(name);
+            if(src1->type() != INT_ARR && src1->type() != CHAR_ARR)
+            {
+                SetError(26, name);
+                return NULL;
+            }
+            TableItem* src2 = Expression();
+            if(!src2)
+                return NULL;
+            TableItem* dst = NewTmpVal();
+            mc.Generate(ARR_GIV, dst, src1, src2);
+            if(curToken->type() != Rspar)
+            {
+                SetError(17);
+                return NULL;
+            }
+            NextToken();
+            return dst;
+        }
+        else if(curToken->type() == Lpar) // sum()
+        {
+            BackToken(1);
+            return CallFuncState();//函数调用语句，内部设置临时变量，并生成返回的中间代码
+        }
+        else // a
+        {
+            TableItem* t = GetItemByName(name);
+            if(!t)
+            {
+                SetError(25, name);
+                return NULL;
+            }
+            else if(t->type() == CONST_INT || t->type() == CONST_CHAR ||
+                    t->type() == INT || t->type() == CHAR)
+            {
+                return t;
+            }
+            else
+            {
+                SetError(26, name);
+                return NULL;
+            }
+        }
+    }
+    else if(curToken->type() == constch)
+    {
+        TableItem* t = NewTmpVal(char(curToken->numVal()));
+        NextToken();
+        return t;
+    }
+    else if(curToken->type() == NUM || curToken->type() == PLUS || curToken->type() == MINUS)
+    {
+        bool isminus = curToken->type() == MINUS;
+        if(curToken->type() == NUM)
+        {
+            TableItem* t = NewTmpVal(curToken->numVal());
+            NextToken();
+            return t;
+        }
+        else
+        {
+            NextToken();
+            if(curToken->type() != NUM)
+            {
+                SetError(12);
+                NextToken();
+                return NULL;
+            }
+            TableItem* t = NewTmpVal(isminus?-curToken->numVal():curToken->numVal());
+            NextToken();
+            return t;
+        }
+    }
+    else if(curToken->type() == Lpar)
+    {
+        NextToken();
+        TableItem* t = Expression();
+        if(curToken->type() != Rpar)
+        {
+            SetError(19);
+            return NULL;
+        }
+        NextToken();
+        return t;
+    }
+    else
+    {
+        SetError(11);
+        return NULL;
+    }
 }
+
 /**
  * generate a new name for temp varible in expression
- * this name must be unique
 */
-string Parser::GetUniqueName()
+string Parser::GetTempName()
 {
-    
+    tempIndex++;
+    return string("t")+string(1, char(tempIndex+'0'));
 }
-
-
+TableItem* Parser::NewTmpVal()
+{
+    string tmpname = GetTempName();
+    TableItem* tmp = new TableItem(tmpname, TMP);//临时变量
+    return tmp;
+}
+TableItem* Parser::NewTmpVal(int constval)
+{
+    string tmpname = GetTempName();
+    TableItem* tmp = new TableItem(tmpname, CONST_INT, constval);//整型常量
+    TempTable.push_back(tmp);
+    return tmp;
+}
+TableItem* Parser::NewTmpVal(char constchar)
+{
+    string tmpname = GetTempName();
+    TableItem* tmp = new TableItem(tmpname, CONST_CHAR, constchar);//字符常量
+    TempTable.push_back(tmp);
+    return tmp;
+}
+/**
+ * get item pointer by name;
+ * it will search item bottom-uply;
+ * if can't find, return NULL;
+*/
+TableItem* Parser::GetItemByName(string name)
+{
+    if(curTbl == &rootTable)
+        return curTbl->GetItem(name);
+    else
+    {
+        TableItem* t = curTbl->GetItem(name);
+        return t?t:rootTable.GetItem(name);
+    }
+}
 
 
