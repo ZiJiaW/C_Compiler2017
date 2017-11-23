@@ -23,7 +23,7 @@ void ErrorHandler::MapInit()
     errorMap[8] = "Missing main function, or your definition is invalid!";
     errorMap[9] = "Unexpected token after main definition: ";
     errorMap[10] = "Expect type(int/char) statement, got: ";
-    errorMap[11] = "Illegal identifier: ";
+    errorMap[11] = "Unexpect illegal identifier: ";
     errorMap[12] = "Expect a number here, got: ";
     errorMap[13] = "Duplicate definition of identifier: ";
     errorMap[14] = "Expect \',\' or \';\', got: ";
@@ -35,10 +35,14 @@ void ErrorHandler::MapInit()
     errorMap[20] = "Expect \'{\', got: ";
     errorMap[21] = "Expect \'}\', got: ";
     errorMap[22] = "Expect \';\', got: ";
-    errorMap[23] = "Can't find a return statement in function: ";
-    errorMap[24] = "Got a return statement in a void function: ";
+    errorMap[23] = "Should return something in a non-void function: ";
+    errorMap[24] = "Shouldn't return anything in a void function: ";
     errorMap[25] = "Undefined identifier: ";
     errorMap[26] = "Invalid reference to: ";
+    errorMap[27] = "Parameter count or type mismatches when call function: ";
+    errorMap[28] = "Illegal assignment, can't assign this object: ";
+    errorMap[29] = "Expect \'=\', got: ";
+    errorMap[30] = "Expect \'[\', got: ";
 }
 /**
 print all errors!

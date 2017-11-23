@@ -16,8 +16,8 @@ struct midInstr {
 class MiddleCode {
 public:
     void Generate(OpCode op, TableItem *dst = NULL, TableItem *src1 = NULL, TableItem *src2 = NULL);
-private:
     vector<midInstr> code;
+private:
 };
 
 #endif // MIDDLECODE_H_INCLUDED

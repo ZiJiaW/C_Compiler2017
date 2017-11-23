@@ -6,12 +6,47 @@
 #include "Symbol.h"
 #include "TableItem.h"
 #include "SymbolTable.h"
+#include "Parser.h"
 using namespace std;
 #define DEBUG
+string GetOpString(OpCode op)
+{
+    switch(op)
+    {
+        case ADD: return "ADD";
+        case SUB: return "SUB";
+        case MUL: return "MUL";
+        case DIV: return "DIV";
+        case GIV: return "GIV";
+        case STR: return "STR";
+        case SETL: return "SETL";
+        case FUNC: return "FUNC";
+        case PARA: return "PARA";
+        case PUSH: return "PUSH";
+        case CALL: return "CALL";
+        case JMP: return "JMP";
+        case NEG: return "NEG";
+        case RET: return "RET";
+        case GET_RET: return "GET_RET";
+        case GIV_ARR: return "GIV_ARR";
+        case ARR_GIV: return "ARR_GIV";
+        case BGR: return "BGR";
+        case BEQ: return "BEQ";
+        case BLS: return "BLS";
+        case BNE: return "BNE";
+        case BGE: return "BGE";
+        case BLE: return "BLE";
+        case WRITE: return "WRITE";
+        case READ: return "READ";
+        case END_FUNC: return "END_FUNC";
+        case END_PROC: return "END_PROC";
+        default: return "";
+    }
+}
 int main()
 {
     // 打印词法分析结果于文件LexerResult中
-    ofstream lexOut;
+   /* ofstream lexOut, mdOut;
     lexOut.open("LexerResult.txt", ios::out);
 
  //   cout << "Please input source code file path:" << endl;
@@ -38,9 +73,75 @@ int main()
     else
     {
         eh.PrintError();
+    }*/
+
+    ofstream lexOut, mdOut;
+    lexOut.open("LexerResult.txt", ios::out);
+    mdOut.open("MiddleCode.txt", ios::out);
+
+ //   cout << "Please input source code file path:" << endl;
+    string fileName("test.txt");
+ //   cin >> fileName;
+    ErrorHandler eh;
+    Lexer lex(fileName, eh);
+    MiddleCode mc;
+    SymbolTable rt;
+    Parser par(lex, eh, mc, rt);
+    par.StartParsing();
+    if(eh.IsSuccessful())
+    {
+        cout<<"Build Succeeded! Now output the result......"<<endl;
+        for(vector<Symbol*>::iterator p = par.tokens.begin(); p != par.tokens.end(); p++)
+        {
+            lexOut<<"In line:"<<(*p)->lineNum()<<"    "<<GetTypeName((*p)->type())<<": "<<(*p)->name()<<endl;
+        }
+        cout<<"Lexer Result in file: LexerResult.txt!"<<endl;
+        for(vector<midInstr>::iterator p = mc.code.begin(); p != mc.code.end(); p++)
+        {
+            string dsts, src1s, src2s;
+            int src1n, src2n;
+            if(p->dst)
+                dsts = p->dst->name();
+            mdOut.fill(' ');
+            mdOut.setf(std::ios::left);
+            mdOut.width(8);
+            mdOut<<GetOpString(p->op);
+            mdOut<<"    ";
+            mdOut.width(5);
+            mdOut<<dsts;
+            mdOut<<"    ";
+            mdOut.width(5);
+            if(p->src1)
+            {
+                if(p->src1->type() == CONST_INT)
+                    mdOut<<p->src1->value();
+                else if(p->src1->type() == CONST_CHAR)
+                    mdOut<<string(1,'\'') + string(1, char(p->src1->value())) + '\'';
+                else
+                    mdOut<<p->src1->name();
+            }
+            mdOut<<"    ";
+            mdOut.width(5);
+            if(p->src2)
+            {
+                if(p->src2->type() == CONST_INT)
+                    mdOut<<p->src2->value();
+                else if(p->src2->type() == CONST_CHAR)
+                    mdOut<<string(1,'\'') + string(1, char(p->src2->value())) + '\'';
+                else
+                    mdOut<<p->src2->name();
+            }
+            mdOut<<endl;
+        }
+        cout<<"Middle Code in file: MiddleCode.txt!"<<endl;
+    }
+    else
+    {
+        eh.PrintError();
     }
     return 0;
 }
+
 /** 附加C0文法
 ＜加法运算符＞ ::= +｜-
 ＜乘法运算符＞  ::= *｜/

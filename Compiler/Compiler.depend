@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1511143203 source:e:\compiler2017\compiler\errorhandler.cpp
+1511427950 source:e:\compiler2017\compiler\errorhandler.cpp
 	"ErrorHandler.h"
 
-1510998432 source:e:\compiler2017\compiler\lexer.cpp
+1511227603 source:e:\compiler2017\compiler\lexer.cpp
 	<iostream>
 	<string>
 	<fstream>
@@ -17,7 +17,7 @@
 	<string>
 	"global.h"
 
-1510829372 e:\compiler2017\compiler\lexer.h
+1511265958 e:\compiler2017\compiler\lexer.h
 	<iostream>
 	<string>
 	<fstream>
@@ -25,7 +25,7 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1510999425 source:e:\compiler2017\compiler\main.cpp
+1511450364 source:e:\compiler2017\compiler\main.cpp
 	<iostream>
 	<string>
 	<fstream>
@@ -34,6 +34,7 @@
 	"Symbol.h"
 	"TableItem.h"
 	"SymbolTable.h"
+	"Parser.h"
 
 1510891577 source:e:\compiler2017\compiler\symbol.cpp
 	<iostream>
@@ -46,12 +47,13 @@
 	<vector>
 	<map>
 
-1511144254 source:e:\compiler2017\compiler\parser.cpp
+1511448707 source:e:\compiler2017\compiler\parser.cpp
 	<vector>
+	<cstdlib>
 	"Symbol.h"
 	"Parser.h"
 
-1511143758 e:\compiler2017\compiler\parser.h
+1511445934 e:\compiler2017\compiler\parser.h
 	"Lexer.h"
 	"MiddleCode.h"
 	"SymbolTable.h"
@@ -60,28 +62,29 @@
 1511103022 source:e:\compiler2017\compiler\middlecode.cpp
 	"MiddleCode.h"
 
-1511002597 source:e:\compiler2017\compiler\symboltable.cpp
+1511279224 source:e:\compiler2017\compiler\symboltable.cpp
 	"SymbolTable.h"
 
-1511002521 source:e:\compiler2017\compiler\tableitem.cpp
+1511237145 source:e:\compiler2017\compiler\tableitem.cpp
 	"TableItem.h"
 
-1511002485 e:\compiler2017\compiler\tableitem.h
+1511443047 e:\compiler2017\compiler\tableitem.h
 	<string>
+	<vector>
 	<iostream>
 	"global.h"
 	"SymbolTable.h"
 
-1511102615 e:\compiler2017\compiler\symboltable.h
+1511279221 e:\compiler2017\compiler\symboltable.h
 	<iostream>
 	<map>
 	<string>
 	"global.h"
 	"TableItem.h"
 
-1511227820 e:\compiler2017\compiler\global.h
+1511443152 e:\compiler2017\compiler\global.h
 
-1511103424 e:\compiler2017\compiler\middlecode.h
+1511441720 e:\compiler2017\compiler\middlecode.h
 	<iostream>
 	<string>
 	<vector>

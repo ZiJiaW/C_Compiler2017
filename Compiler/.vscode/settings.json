@@ -3,6 +3,9 @@
         "*.ipynb": "html",
         "system_error": "cpp",
         "xlocale": "cpp",
-        "xtr1common": "cpp"
+        "xtr1common": "cpp",
+        "xiosbase": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp"
     }
 }

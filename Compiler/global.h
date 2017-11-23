@@ -15,6 +15,7 @@ enum OpCode {
     JMP, // JMP LABEL(无条件跳转)
     NEG, // NEG a b(a=-b)
     RET, // RET a(return a)
+    GET_RET, // a = return val
     GIV_ARR, // []= a k n    a[k]=n
     ARR_GIV, // =[] n a k    n=a[k]
     BGR, // branch to label if src1 is greater than src2 : BGR LABEL src1 src2
@@ -29,7 +30,7 @@ enum OpCode {
     END_PROC, // 程序结束
 };
 enum TableItemType {
-    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR, TMP
+    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR, TMP, CONST_STR
 };
 enum SymType {
     noone, // belong to nothing
