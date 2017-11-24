@@ -4,11 +4,13 @@
 #include "MiddleCode.h"
 #include "SymbolTable.h"
 #include "global.h"
+#define DEBUG
 class Parser {
 public:
     Parser(Lexer &lex, ErrorHandler &eh, MiddleCode &mc, SymbolTable &rt);
+    ~Parser();
     void StartParsing();     // start entry
-    vector<TableItem*> TempTable;   // 临时变量表，用于存储表达式中生成的中间变量，和常量
+    vector<TableItem*> TempTable;   // 临时变量表，用于存储表达式中生成的中间变量，和常量, 以及零
     vector<Symbol*> tokens;   // 保存所有单词
 private:
     int tempIndex;  // 当前临时变量在临时变量表中的位置
@@ -17,6 +19,8 @@ private:
     TableItem* NewTmpVal(int constval); // 添加整数常量，返回表项指针
     TableItem* NewTmpVal(char constchar); // 添加字符常量，返回表项指针
     TableItem* NewTmpVal(string conststr); // 添加字符串常量
+    TableItem* GenLabel(); // 生成一个用于跳转的标签
+    TableItem* constZero; // 用作条件判断的常量0的符号表项指针
 
     int curIndex;
     Symbol* curToken; // 指向当前正在处理的单词
@@ -56,19 +60,18 @@ private:
 
     void GiveState();        // 赋值语句1
 
-    void IfState();          // 条件语句
-    void Condition();        // 条件
+    void IfState();          // 条件语句1
+    MiddleCode* Condition(TableItem* label, bool isIf = false); // 条件1
 
-    void ForState();         // 循环语句
+    void ForState();         // 循环语句1
 
-    void SwitchState();      // 情况语句
-    void CaseList();         // 情况表
-    void CaseState();        // 情况子语句
+    void SwitchState();      // 情况语句1
+    void CaseList(TableItem* exp, TableItem* end_label);         // 情况表
     void DefaultState();     // 默认
 
     TableItem* CallFuncState();    // 函数调用语句1
-    void PrintState();       // 打印
-    void ScanfState();       // 读
+    void PrintState();       // 打印1
+    void ScanfState();       // 读1
     void ReturnState();      // 返回语句1
     // 表达式生成的临时变量同样加入临时变量表
     TableItem* Expression();       // 表达式1

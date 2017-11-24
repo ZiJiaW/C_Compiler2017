@@ -5,7 +5,18 @@
 using namespace std;
 
 Parser::Parser(Lexer &_lex, ErrorHandler &_eh, MiddleCode &_mc, SymbolTable &_rt):
-    lex(_lex), eh(_eh), mc(_mc), rootTable(_rt), curItem(NULL), curTbl(NULL), tempIndex(-1), curIndex(0){}
+    lex(_lex), eh(_eh), mc(_mc), rootTable(_rt), curItem(NULL), curTbl(NULL), tempIndex(-1), curIndex(0)
+{
+    constZero = new TableItem("constZero", CONST_INT, 0);
+}
+Parser::~Parser()
+{
+    for(vector<TableItem*>::iterator p = TempTable.begin(); p != TempTable.end(); p++)
+        delete *p;
+    for(vector<Symbol*>::iterator p = tokens.begin(); p !=tokens.end(); p++)
+        delete *p;
+    delete constZero;
+}
 /***
 1. Call GetSym() to get next token if no back before;
 2. else just set curToken to points to next token;
@@ -337,6 +348,9 @@ curToken is int/char(confirmed outside)
 ***/
 void Parser::VarState()
 {
+#ifdef DEBUG
+    cout<<"in var state"<<endl;
+#endif // DEBUG
     while(curToken->type() == symint || curToken->type() == symchar)
     {
         // 还需要做函数和变量声明的判别
@@ -462,6 +476,9 @@ void Parser::VarState()
 */
 void Parser::FuncWithRet()
 {
+#ifdef DEBUG
+    cout<<"in function definition"<<endl;
+#endif // DEBUG
     TableItemType funcType = curToken->type() == symint ? INT_FUNC : CHAR_FUNC;
     NextToken();
     if(curToken->type() != IDENT)
@@ -532,6 +549,9 @@ void Parser::FuncWithRet()
 */
 void Parser::ParaList(TableItem* funcItem)
 {
+#ifdef DEBUG
+    cout<<"in paralist"<<endl;
+#endif // DEBUG
     int paraCount = 0;
     if(curToken->type() == Rpar)
     {
@@ -598,6 +618,9 @@ void Parser::ParaList(TableItem* funcItem)
 */
 void Parser::ComplexSentence()
 {
+#ifdef DEBUG
+    cout<<"in complex sentence"<<endl;
+#endif // DEBUG
     if(curToken->type() == symconst)
     {
         ConstState(); // 常量说明
@@ -726,6 +749,9 @@ void Parser::Sentence()
 */
 void Parser::FuncWithoutRet()
 {
+    #ifdef DEBUG
+    cout<<"in function definition without return"<<endl;
+#endif // DEBUG
     TableItemType funcType = VOID_FUNC;
     NextToken();
     if(curToken->type() != IDENT)
@@ -798,6 +824,10 @@ void Parser::FuncWithoutRet()
 */
 void Parser::MainFunc()
 {
+    #ifdef DEBUG
+    cout<<"in main"<<endl;
+#endif // DEBUG4
+    curTbl = &rootTable;
     NextToken();
     NextToken();
     // gen middle code here: FUNC main
@@ -858,6 +888,9 @@ void Parser::MainFunc()
 */
 TableItem* Parser::Expression()
 {
+    #ifdef DEBUG
+    cout<<"in expression"<<endl;
+#endif // DEBUG
     bool gotminus = false;
     if(curToken->type() == PLUS)
     {
@@ -931,6 +964,7 @@ TableItem* Parser::Factor()
                 SetError(26, name);
                 return NULL;
             }
+            NextToken();
             TableItem* src2 = Expression();
             if(!src2)
                 return NULL;
@@ -1038,6 +1072,9 @@ TableItem* Parser::Factor()
 */
 TableItem* Parser::CallFuncState()// sum(a+2, b)
 {
+    #ifdef DEBUG
+    cout<<"in call function state"<<endl;
+#endif // DEBUG
     TableItem* func = GetItemByName(curToken->name());// 获取该函数的符号表项
     if(!func)
     {
@@ -1059,8 +1096,12 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
     }
     NextToken();
     int pcount = 0;
-    while(curToken->type() == IDENT)
+    while(true)
     {
+        if(curToken->type() == Rpar)
+        {
+            break;
+        }
         TableItem *para = Expression();
         mc.Generate(PUSH, para);
         pcount++;
@@ -1069,10 +1110,6 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
         {
             NextToken();
             continue;
-        }
-        else if(curToken->type() == Rpar)
-        {
-            break;
         }
     }
     if(curToken->type() != Rpar)
@@ -1086,11 +1123,11 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
         return NULL;
     }
     mc.Generate(CALL, func);
+    NextToken();
     if(func->type() == VOID_FUNC)
         return NULL;
     TableItem* result = NewTmpVal();
     mc.Generate(GET_RET, result);
-    NextToken();
     return result;
 }
 /**
@@ -1099,6 +1136,9 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
 */
 void Parser::GiveState()
 {
+    #ifdef DEBUG
+    cout<<"in give state"<<endl;
+#endif // DEBUG
     TableItem* dst = GetItemByName(curToken->name()); // 被赋值对象的符号表项
     if(!dst)
     {
@@ -1170,6 +1210,9 @@ void Parser::GiveState()
 */
 void Parser::ReturnState()// return (2*3) or return
 {
+    #ifdef DEBUG
+    cout<<"in return state"<<endl;
+#endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
     {
@@ -1196,6 +1239,9 @@ void Parser::ReturnState()// return (2*3) or return
 */
 void Parser::ScanfState()
 {
+    #ifdef DEBUG
+    cout<<"in scanf state"<<endl;
+#endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
     {
@@ -1254,6 +1300,9 @@ void Parser::ScanfState()
 */
 void Parser::PrintState()
 {
+    #ifdef DEBUG
+    cout<<"in printf state"<<endl;
+#endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
     {
@@ -1420,6 +1469,13 @@ TableItem* Parser::NewTmpVal(string conststr)
     TempTable.push_back(tmp);
     return tmp;
 }
+TableItem* Parser::GenLabel()
+{
+    string tmpname = GetTempName();
+    TableItem* tmp = new TableItem(tmpname, LABEL); // 表中添加标签
+    TempTable.push_back(tmp);
+    return tmp;
+}
 /**
  * get item pointer by name;
  * it will search item bottom-uply;
@@ -1435,13 +1491,436 @@ TableItem* Parser::GetItemByName(string name)
         return t?t:rootTable.GetItem(name);
     }
 }
+/*
+if(a == d)
+    a = a + 1;
+else
+    d = d + 1;
+how to translate to MIPS?
+suppose a in $s0, b in $s1;
+**************************
+bne label $s0 $s1
+addi $s0 $s0 1
+j end
+label: addi $s1 $s1 1
+end:......
+**************************
+how to translate for?
+for(i = 0; i < 10; i = i + 1)
+    sum = sum + 1;
+suppose sum in $s0, i in $s1;
+**************************
+li $s1 0             GIV i 0
+loop:                SETL loop_1
+add $s0 $s0 $s1      ADD sum sum 1
+addi $s1 $s1 1       ADD i i 1
+slti $t0 $s1 10      SLT t0 i 10
+bne $t0 $0 loop      BNE t0 0 loop_1
+**************************
+*/
+/**
+ * ＜条件语句＞::=if ‘(’＜条件＞‘)’＜语句＞［else＜语句＞］
+ * ＜条件＞::=＜表达式＞＜关系运算符＞＜表达式＞｜＜表达式＞ //表达式为0条件为假，否则为真
+*/
+void Parser::IfState()
+{
+    #ifdef DEBUG
+    cout<<"in if state"<<endl;
+#endif // DEBUG
+    NextToken();
+    if(curToken->type() != Lpar)
+    {
+        SetError(18);
+        SkipUntil(SEMICOLON, Rbrac);
+        return;
+    }
+    NextToken();
+    TableItem* label = GenLabel();
+    MiddleCode* cdt = Condition(label, true);
+    mc.Concat(cdt);
+    if(curToken->type() != Rpar)
+    {
+        SetError(19);
+        SkipUntil(SEMICOLON, Rbrac);
+        return;
+    }
+    NextToken();
+    Sentence();
+    TableItem* end = GenLabel();
+    mc.Generate(JMP, end);
+    mc.Generate(SETL, label);
+    if(curToken->type() == symelse)
+    {
+        NextToken();
+        Sentence();
+        mc.Generate(SETL, end);
+        return;
+    }
+    else
+    {
+        mc.Generate(SETL, end);
+        return;
+    }
+}
+/**
+ * ＜条件＞::=＜表达式＞＜关系运算符＞＜表达式＞｜＜表达式＞ //表达式为0条件为假，否则为真
+ * 在外部生成Label作为参数，内部生成带跳转的中间代码
+ * 传出生成的中间代码，因为跳转的位置需要在外部调整，不能直接生成
+ * 如果是if语句(isIf = true)，需要在条件不满足时跳转，for语句则条件满足时跳转
+*/
+MiddleCode* Parser::Condition(TableItem* label, bool isIf)
+{
+    #ifdef DEBUG
+    cout<<"in condition state"<<endl;
+#endif // DEBUG
+    MiddleCode* ret = new MiddleCode();
+    TableItem* src1 = Expression();
+    if(curToken->type() == EQ || curToken->type() == LEQ || curToken->type() == GEQ
+    || curToken->type() == GRT || curToken->type() == LES || curToken->type() == NEQ)
+    {
+        SymType tp = curToken->type();
+        NextToken();
+        TableItem* src2 = Expression();
+        switch(tp)
+        {
+            case EQ:{ // src1 == src2
+                if(isIf)
+                    ret->Generate(BNE, label, src1, src2); // if src1 != src2, jmp
+                else
+                    ret->Generate(BEQ, label, src1, src2); // is src1 == src2, jmp
+                return ret;
+            }
+            case LEQ:{ // src1<=src2
+                TableItem* dst = NewTmpVal();
+                ret->Generate(SUB, dst, src1, src2); // dst = src1 - src2
+                if(isIf)
+                    ret->Generate(BGTZ, label, dst); // if dst > 0, branch to label
+                else
+                    ret->Generate(BLEZ, label, dst); // if dst <= 0, branch to label
+                return ret;
+            }
+            case GEQ:{ // src1>=src2
+                TableItem* dst = NewTmpVal();
+                ret->Generate(SUB, dst, src1, src2); // dst = src1 - src2
+                if(isIf)
+                    ret->Generate(BLTZ, label, dst); // if dst < 0, jmp
+                else
+                    ret->Generate(BGEZ, label, dst); // if dst >=0, jmp
+                return ret;
+            }
+            case GRT:{// src1>src2
+                TableItem* dst = NewTmpVal();
+                ret->Generate(SUB, dst, src1, src2); // dst = src1 - src2
+                if(isIf)
+                    ret->Generate(BLEZ, label, dst); // if dst <= 0, jmp
+                else
+                    ret->Generate(BGTZ, label, dst); // if dst >0, jmp
+                return ret;
+            }
+            case LES:{// src1<src2
+                TableItem* dst = NewTmpVal();
+                ret->Generate(SUB, dst, src1, src2); // dst = src1 - src2
+                if(isIf)
+                    ret->Generate(BGEZ, label, dst); // if dst >= 0, jmp
+                else
+                    ret->Generate(BLTZ, label, dst); // if dst < 0, jmp
+                return ret;
+            }
+            case NEQ:{
+                if(isIf)
+                    ret->Generate(BEQ, label, src1, src2);
+                else
+                    ret->Generate(BNE, label, src1, src2);
+                return ret;
+            }
+        }
+    }
+    else
+    {
+        if(isIf) // if src1 == 0, jmp
+            ret->Generate(BEQ, label, src1, constZero);
+        else// if src1 != 0, jmp
+            ret->Generate(BNE, label, src1, constZero);
+        return ret;
+    }
+}
+/**
+ * ＜循环语句＞ ::=  for‘(’＜标识符＞＝＜表达式＞;＜条件＞;＜标识符＞＝＜标识符＞(+|-)＜步长＞‘)’＜语句＞
+ * ＜步长＞ ::= ＜非零数字＞｛＜数字＞｝就是无符号整数，切出来是NUM的就行了
+*/
+void Parser::ForState()
+{
+    #ifdef DEBUG
+    cout<<"in for state"<<endl;
+#endif // DEBUG
+    NextToken();
+    if(curToken->type() != Lpar)
+    {
+        SetError(18);
+        SkipUntil(SEMICOLON);
+    }
+    else
+    {
+        NextToken();
+        if(curToken->type() != IDENT)
+        {
+            SetError(11);
+            SkipUntil(SEMICOLON);
+        }
+        else
+        {
+            NextToken();
+            if(curToken->type() != GIVEN)
+            {
+                SetError(29);
+                SkipUntil(SEMICOLON);
+            }
+            else
+            {
+                BackToken(1);
+                GiveState();
+                if(curToken->type() != SEMICOLON)
+                {
+                    SetError(22);
+                    SkipUntil(SEMICOLON);
+                }
+                NextToken();
+            }
+        }
+    }
+    TableItem* loop = GenLabel();
+    mc.Generate(SETL, loop);
+    MiddleCode* cdt = Condition(loop);
+    OpCode op;
+    TableItem* dst;
+    TableItem* src1;
+    TableItem* src2;
+    if(curToken->type() != SEMICOLON)
+    {
+        SetError(22);
+        SkipUntil(Rpar);
+    }
+    else
+    {
+        NextToken();
+        // i = i +/- 1
+        if(curToken->type() != IDENT)
+        {
+            SetError(11);
+            SkipUntil(Rpar);
+        }
+        else
+        {
+            dst = GetItemByName(curToken->name());
+            if(!dst)
+            {
+                SetError(25);
+                SkipUntil(Rpar);
+            }
+            else if(dst->type() != INT && dst->type() != CHAR)
+            {
+                SetError(26);
+                SkipUntil(Rpar);
+            }
+            else
+            {
+                NextToken();
+                if(curToken->type() != GIVEN)
+                {
+                    SetError(29);
+                    SkipUntil(Rpar);
+                }
+                else
+                {
+                    NextToken();
+                    if(curToken->type() != IDENT)
+                    {
+                        SetError(11);
+                        SkipUntil(Rpar);
+                    }
+                    else
+                    {
+                        src1 = GetItemByName(curToken->name());
+                        if(!src1)
+                        {
+                            SetError(25);
+                            SkipUntil(Rpar);
+                        }
+                        else if(src1->type() != INT && src1->type() != CHAR && src1->type() != CONST_INT && src1->type() != CONST_CHAR)
+                        {
+                            SetError(26);
+                            SkipUntil(Rpar);
+                        }
+                        else
+                        {
+                            NextToken();
+                            op = curToken->type() == PLUS ? ADD :
+                                 curToken->type() == MINUS ? SUB : END_FUNC;
+                            if(op == END_FUNC)
+                            {
+                                SetError(11);
+                                SkipUntil(Rpar);
+                            }
+                            NextToken();
+                            if(curToken->type() != NUM)
+                            {
+                                SetError(12);
+                                SkipUntil(Rpar);
+                            }
+                            else
+                            {
+                                src2 = NewTmpVal(curToken->numVal());
+                                NextToken();
+                                if(curToken->type() != Rpar)
+                                {
+                                    SetError(19);
+                                    SkipUntil(Rpar);
+                                }
+                                else
+                                    NextToken();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Sentence();// 内容
+    mc.Generate(op, dst, src1, src2);//步长
+    mc.Concat(cdt);//最后添加跳转判断
+}
 
-
-void Parser::IfState(){}
-void Parser::Condition(){}
-void Parser::ForState(){}
-void Parser::SwitchState(){}
-void Parser::CaseList(){}
-void Parser::CaseState(){}
-void Parser::DefaultState(){}
+/**
+ * ＜情况语句＞::=switch ‘(’＜表达式＞‘)’ ‘{’＜情况表＞＜缺省＞‘}’
+ * ＜情况表＞::=＜情况子语句＞{＜情况子语句＞}
+ * ＜情况子语句＞::=case＜常量＞：＜语句＞
+ * ＜缺省＞::=default :＜语句＞
+*/
+/*
+switch(a+b)                 t0 = a + b
+{                           bne t0 2 label2
+    case 2: b = 5;          b = 5
+    case 1: b = 10;         label2: bne t0 1 label3
+    default: b = 0;         b = 10
+}                           label3: b = 0
+*/
+void Parser::SwitchState()
+{
+    #ifdef DEBUG
+    cout<<"in switch state"<<endl;
+#endif // DEBUG
+    NextToken();
+    TableItem* ex;
+    TableItem* end = GenLabel();
+    if(curToken->type() != Lpar)
+    {
+        SetError(18);
+        SkipUntil(Lbrac);
+    }
+    else
+    {
+        NextToken();
+        ex = Expression();
+        if(curToken->type() != Rpar)
+        {
+            SetError(19);
+            SkipUntil(Lbrac);
+        }
+        else
+        {
+            NextToken();
+            if(curToken->type() != Lbrac)
+            {
+                SetError(20);
+                SkipUntil(Lbrac);
+            }
+            else
+                NextToken();
+        }
+    }
+    CaseList(ex, end);
+    DefaultState();
+    mc.Generate(SETL, end);
+    if(curToken->type() != Rbrac)
+    {
+        SetError(21);
+        SkipUntil(SEMICOLON, Rbrac);
+        return;
+    }
+    NextToken();
+}
+/**
+ * ＜情况表＞::=＜情况子语句＞{＜情况子语句＞}
+ * ＜情况子语句＞::=case＜常量＞：＜语句＞ case -1  case 2 case 'a'
+*/
+void Parser::CaseList(TableItem* ex, TableItem* end_label)
+{
+    if(curToken->type() != symcase)
+    {
+        SetError(31);
+        SkipUntil(symdefault);
+        BackToken(1);
+        return;
+    }
+    SymType constTp = noone;
+    while(curToken->type() == symcase)
+    {
+        NextToken();
+        bool isminus = false;
+        if(curToken->type() == MINUS || curToken->type() == PLUS)
+        {
+            isminus = curToken->type() == MINUS;
+            NextToken();
+        }
+        if(curToken->type() != NUM && curToken->type() != constch)
+        {
+            SetError(32);
+            SkipUntil(symcase, symdefault);
+            BackToken(1);
+            return;
+        }
+        if(constTp == noone)
+            constTp = curToken->type();
+        else if(curToken->type() != constTp)
+            SetError(33, "");
+        TableItem* src1 = NewTmpVal(isminus?-curToken->numVal():curToken->numVal());
+        TableItem* label = GenLabel();
+        mc.Generate(BNE, label, src1, ex);
+        NextToken();
+        if(curToken->type() != COLON)
+        {
+            SetError(34);
+            SkipUntil(symcase, symdefault);
+            BackToken(1);
+            return;
+        }
+        NextToken();
+        Sentence();
+        mc.Generate(JMP, end_label);
+        mc.Generate(SETL, label);
+    }
+}
+/**
+ * ＜缺省＞::=default :＜语句＞
+*/
+void Parser::DefaultState()
+{
+    if(curToken->type() != symdefault)
+    {
+        SetError(35);
+        SkipUntil(Rbrac);
+        BackToken(1);
+        return;
+    }
+    NextToken();
+    if(curToken->type() != COLON)
+    {
+        SetError(34);
+        SkipUntil(Rbrac);
+        BackToken(1);
+        return;
+    }
+    NextToken();
+    Sentence();
+}
 

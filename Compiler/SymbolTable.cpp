@@ -1,7 +1,15 @@
 #include "SymbolTable.h"
 
 SymbolTable::SymbolTable(): returnsth(0), returnnth(0){}
-
+SymbolTable::~SymbolTable()
+{
+    for(map<string, TableItem*>::iterator p = table.begin(); p!=table.end(); p++)
+    {
+        if(p->second->funcField())
+            delete p->second->funcField();
+        delete p->second;
+    }
+}
 /**
 1. insert a table item with name, type, value;
 2. if it already exists, return null(ERROR);

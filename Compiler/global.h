@@ -18,19 +18,19 @@ enum OpCode {
     GET_RET, // a = return val
     GIV_ARR, // []= a k n    a[k]=n
     ARR_GIV, // =[] n a k    n=a[k]
-    BGR, // branch to label if src1 is greater than src2 : BGR LABEL src1 src2
     BEQ, // branch if equal
-    BLS, // branch if less
     BNE, // branch if not equal
-    BGE, // branch if greater or equal
-    BLE, // branch if less or equal
+    BGEZ,// branch if a >=0,   BGEZ label a
+    BGTZ,
+    BLEZ,
+    BLTZ,
     WRITE, // WRITE t(printf(t) or printf("string")) const string should be inserted into Symbol table too!
     READ,   // READ t(scanf(t))
     END_FUNC, // 函数结束
     END_PROC, // 程序结束
 };
 enum TableItemType {
-    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR, TMP, CONST_STR
+    CONST_INT = 150, CONST_CHAR, INT, CHAR, VOID_FUNC, INT_FUNC, CHAR_FUNC, INT_ARR, CHAR_ARR, TMP, CONST_STR, LABEL
 };
 enum SymType {
     noone, // belong to nothing

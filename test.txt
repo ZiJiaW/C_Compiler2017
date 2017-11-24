@@ -12,19 +12,19 @@ int sq_dist(int x1, int x2, int x3, int x4)
 {
     int ret;
     ret = (x2-x1)*(x2-x1) + (x4-x3)*(x4-x3);
-    return (ret+1)*2/2-1;
+    return ((ret+1)*2/2-1);
 }
 int fact(int n)
 {
     if( n == 1)
-        return 1;
-    return n*fact(n-1);
+        return (1);
+    return (n*fact(n-1));
 }
 int reduce(int n)
 {
     if(n==1)
-        return 1;
-    return n+reduce(n-1);
+        return (1);
+    return (n+reduce(n-1));
 }
 int reduce_to_m(int n, int m)
 {
@@ -33,7 +33,7 @@ int reduce_to_m(int n, int m)
     {
         r = r+n;
     }
-    return r;
+    return (r);
 }
 void test_print()
 {
@@ -43,7 +43,7 @@ void test_print()
 }
 char Lower(char ch)
 {
-    return ch+32;
+    return (ch+32);
 }
 void main(){
     const int n = 81, n1 = -15, n3 = +13, n4 = 0, n6 = +0;
@@ -55,12 +55,12 @@ void main(){
     if(i<0)
     {
 	printf("i shouldn't < 0!"); 
-	return 0;
+	return;
     }
     if(i!=12/6*5+1-1)
     {
         printf("i should be 10, not ", i);
-        return 0;
+        return;
     } 
     else
         ;
@@ -92,5 +92,5 @@ void main(){
                 printf("default:",sq_dist(i,n,n1,n3));
         }
     }
-    return 0;
+    return;
 }

@@ -8,7 +8,6 @@
 #include "SymbolTable.h"
 #include "Parser.h"
 using namespace std;
-#define DEBUG
 string GetOpString(OpCode op)
 {
     switch(op)
@@ -30,12 +29,12 @@ string GetOpString(OpCode op)
         case GET_RET: return "GET_RET";
         case GIV_ARR: return "GIV_ARR";
         case ARR_GIV: return "ARR_GIV";
-        case BGR: return "BGR";
+        case BLEZ: return "BLEZ";
         case BEQ: return "BEQ";
-        case BLS: return "BLS";
+        case BGTZ: return "BGTZ";
         case BNE: return "BNE";
-        case BGE: return "BGE";
-        case BLE: return "BLE";
+        case BGEZ: return "BGEZ";
+        case BLTZ: return "BLTZ";
         case WRITE: return "WRITE";
         case READ: return "READ";
         case END_FUNC: return "END_FUNC";
@@ -108,7 +107,15 @@ int main()
             mdOut<<GetOpString(p->op);
             mdOut<<"    ";
             mdOut.width(5);
-            mdOut<<dsts;
+            if(p->dst)
+            {
+                if(p->dst->type() == CONST_INT)
+                    mdOut<<p->dst->value();
+                else if(p->dst->type() == CONST_CHAR)
+                    mdOut<<string(1,'\'') + string(1, char(p->dst->value())) + '\'';
+                else
+                    mdOut<<p->dst->name();
+            }
             mdOut<<"    ";
             mdOut.width(5);
             if(p->src1)

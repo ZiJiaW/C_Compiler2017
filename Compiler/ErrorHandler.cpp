@@ -43,6 +43,11 @@ void ErrorHandler::MapInit()
     errorMap[28] = "Illegal assignment, can't assign this object: ";
     errorMap[29] = "Expect \'=\', got: ";
     errorMap[30] = "Expect \'[\', got: ";
+    errorMap[31] = "Expect \'case\', got: ";
+    errorMap[32] = "Invalid identifier after \'case\': ";
+    errorMap[33] = "The const value after \'case\' must be in same type!";
+    errorMap[34] = "Expect \':\', got: ";
+    errorMap[35] = "Missing default in \'switch\', got: ";
 }
 /**
 print all errors!

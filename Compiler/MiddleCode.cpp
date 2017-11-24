@@ -9,3 +9,7 @@ void MiddleCode::Generate(OpCode _op, TableItem* _dst, TableItem* _src1, TableIt
     m.src2 = _src2;
     code.push_back(m);
 }
+void MiddleCode::Concat(MiddleCode* md)
+{
+    code.insert(code.end(),md->code.begin(), md->code.end());
+}

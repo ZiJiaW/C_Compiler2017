@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1511427950 source:e:\compiler2017\compiler\errorhandler.cpp
+1511513769 source:e:\compiler2017\compiler\errorhandler.cpp
 	"ErrorHandler.h"
 
 1511227603 source:e:\compiler2017\compiler\lexer.cpp
@@ -25,7 +25,7 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1511450364 source:e:\compiler2017\compiler\main.cpp
+1511520999 source:e:\compiler2017\compiler\main.cpp
 	<iostream>
 	<string>
 	<fstream>
@@ -47,19 +47,19 @@
 	<vector>
 	<map>
 
-1511448707 source:e:\compiler2017\compiler\parser.cpp
+1511524085 source:e:\compiler2017\compiler\parser.cpp
 	<vector>
 	<cstdlib>
 	"Symbol.h"
 	"Parser.h"
 
-1511445934 e:\compiler2017\compiler\parser.h
+1511520997 e:\compiler2017\compiler\parser.h
 	"Lexer.h"
 	"MiddleCode.h"
 	"SymbolTable.h"
 	"global.h"
 
-1511103022 source:e:\compiler2017\compiler\middlecode.cpp
+1511494962 source:e:\compiler2017\compiler\middlecode.cpp
 	"MiddleCode.h"
 
 1511279224 source:e:\compiler2017\compiler\symboltable.cpp
@@ -75,16 +75,16 @@
 	"global.h"
 	"SymbolTable.h"
 
-1511279221 e:\compiler2017\compiler\symboltable.h
+1511528476 e:\compiler2017\compiler\symboltable.h
 	<iostream>
 	<map>
 	<string>
 	"global.h"
 	"TableItem.h"
 
-1511443152 e:\compiler2017\compiler\global.h
+1511503111 e:\compiler2017\compiler\global.h
 
-1511441720 e:\compiler2017\compiler\middlecode.h
+1511494243 e:\compiler2017\compiler\middlecode.h
 	<iostream>
 	<string>
 	<vector>

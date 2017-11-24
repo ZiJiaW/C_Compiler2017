@@ -17,7 +17,7 @@ class MiddleCode {
 public:
     void Generate(OpCode op, TableItem *dst = NULL, TableItem *src1 = NULL, TableItem *src2 = NULL);
     vector<midInstr> code;
-private:
+    void Concat(MiddleCode* md);
 };
 
 #endif // MIDDLECODE_H_INCLUDED

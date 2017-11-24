@@ -13,6 +13,7 @@ public:
     TableItem* Insert(string name, TableItemType type, int value);
     TableItem* GetItem(string name);
     SymbolTable();
+    ~SymbolTable();
     void HasReturnedSth(){returnsth++;} // got: return sth;
     void HasReturnedNth(){returnnth++;} // got: return;
 

@@ -6,6 +6,14 @@
         "xtr1common": "cpp",
         "xiosbase": "cpp",
         "iosfwd": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "initializer_list": "cpp",
+        "map": "cpp",
+        "streambuf": "cpp",
+        "vector": "cpp",
+        "xmemory0": "cpp",
+        "xstring": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp"
     }
 }
