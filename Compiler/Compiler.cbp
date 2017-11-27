@@ -36,6 +36,8 @@
 		<Unit filename="ErrorHandler.h" />
 		<Unit filename="Lexer.cpp" />
 		<Unit filename="Lexer.h" />
+		<Unit filename="MIPSTranslator.cpp" />
+		<Unit filename="MIPSTranslator.h" />
 		<Unit filename="MiddleCode.cpp" />
 		<Unit filename="MiddleCode.h" />
 		<Unit filename="Parser.cpp" />

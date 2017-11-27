@@ -24,6 +24,8 @@ public:
     void SetLength(int len);
     void SetField(SymbolTable *f);
 
+    int useCount;
+
     vector<string> paraName; // 对于字符串常量，容器的第一个位置存储之
 private:
     string _name;

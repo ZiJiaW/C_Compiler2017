@@ -1,7 +1,7 @@
 #include "TableItem.h"
 
 TableItem::TableItem(string name, TableItemType type, int value):
-    _name(name), _type(type), _value(value), _paramCount(-1), _funcField(NULL), _arrayLen(-1), _array(NULL){}
+    _name(name), _type(type), _value(value), _paramCount(-1), _funcField(NULL), _arrayLen(-1), _array(NULL), useCount(0){}
 
 string TableItem::name()
 {

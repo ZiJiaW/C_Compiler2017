@@ -1,0 +1,9 @@
+int sum(int a, int b)
+{return (a+b);}
+void main()
+{
+    int t;
+    t = 3;
+    t = sum(t, t+1);
+    printf(t);
+}

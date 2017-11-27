@@ -41,7 +41,7 @@ void Parser::NextToken()
         curIndex++;
     }
     curToken = tokens[curIndex];
-    cout<<curToken->name()<<endl;
+//    cout<<curToken->name()<<endl;
 }
 /**
 1. return back n tokens because we may pre-get tokens to
@@ -92,6 +92,9 @@ bool Parser::SkipInlineUntil(SymType tp)
 */
 void Parser::StartParsing()
 {
+    #ifdef DEBUG
+        cout<<"Start Parsing!"<<endl;
+    #endif
     curTbl = &rootTable;
     NextToken();
     Program();
@@ -127,7 +130,7 @@ bool Parser::InsertTable(string name, TableItemType type, int value)
 void Parser::Program()
 {
 #ifdef DEBUG
-    cout<<"Start parsing program"<<endl;
+    cout<<"This is program entry!"<<endl;
 #endif // DEBUG
     if(curToken->type() == symconst)
     {
@@ -194,6 +197,9 @@ void Parser::Program()
 *****/
 void Parser::ConstState()
 {
+    #ifdef DEBUG
+        cout<<"This is const statement!"<<endl;
+    #endif
     // const has been confirmed outside
     while(curToken->type() == symconst)
     {
@@ -209,7 +215,7 @@ void Parser::ConstState()
         if(curToken->type() == symint)
         {
             #ifdef DEBUG
-            cout<<"this is a const int statement"<<endl;
+                cout<<"this is a const int statement"<<endl;
             #endif // DEBUG
             NextToken();
             if(curToken->type() != IDENT)
@@ -284,7 +290,7 @@ void Parser::ConstState()
         else
         {
             #ifdef DEBUG
-            cout<<"this is a const char statement"<<endl;
+                cout<<"this is a const char statement"<<endl;
             #endif // DEBUG
             NextToken();
             if(curToken->type() != IDENT)
@@ -348,11 +354,11 @@ curToken is int/char(confirmed outside)
 ***/
 void Parser::VarState()
 {
-#ifdef DEBUG
-    cout<<"in var state"<<endl;
-#endif // DEBUG
     while(curToken->type() == symint || curToken->type() == symchar)
     {
+        #ifdef DEBUG
+            cout<<"This is variable statement!"<<endl;
+        #endif // DEBUG
         // 还需要做函数和变量声明的判别
         NextToken(); NextToken();
         if(curToken->type() == Lpar) // 到达函数部分，退出
@@ -477,7 +483,7 @@ void Parser::VarState()
 void Parser::FuncWithRet()
 {
 #ifdef DEBUG
-    cout<<"in function definition"<<endl;
+    cout<<"This is int/char function definition!"<<endl;
 #endif // DEBUG
     TableItemType funcType = curToken->type() == symint ? INT_FUNC : CHAR_FUNC;
     NextToken();
@@ -550,7 +556,7 @@ void Parser::FuncWithRet()
 void Parser::ParaList(TableItem* funcItem)
 {
 #ifdef DEBUG
-    cout<<"in paralist"<<endl;
+    cout<<"Now in parameter list!"<<endl;
 #endif // DEBUG
     int paraCount = 0;
     if(curToken->type() == Rpar)
@@ -619,7 +625,7 @@ void Parser::ParaList(TableItem* funcItem)
 void Parser::ComplexSentence()
 {
 #ifdef DEBUG
-    cout<<"in complex sentence"<<endl;
+    cout<<"Now in complex sentences!"<<endl;
 #endif // DEBUG
     if(curToken->type() == symconst)
     {
@@ -749,8 +755,8 @@ void Parser::Sentence()
 */
 void Parser::FuncWithoutRet()
 {
-    #ifdef DEBUG
-    cout<<"in function definition without return"<<endl;
+#ifdef DEBUG
+    cout<<"This is a void function definition!"<<endl;
 #endif // DEBUG
     TableItemType funcType = VOID_FUNC;
     NextToken();
@@ -824,8 +830,8 @@ void Parser::FuncWithoutRet()
 */
 void Parser::MainFunc()
 {
-    #ifdef DEBUG
-    cout<<"in main"<<endl;
+#ifdef DEBUG
+    cout<<"This is main function!"<<endl;
 #endif // DEBUG4
     curTbl = &rootTable;
     NextToken();
@@ -888,8 +894,8 @@ void Parser::MainFunc()
 */
 TableItem* Parser::Expression()
 {
-    #ifdef DEBUG
-    cout<<"in expression"<<endl;
+#ifdef DEBUG
+    cout<<"This is an expression!"<<endl;
 #endif // DEBUG
     bool gotminus = false;
     if(curToken->type() == PLUS)
@@ -1072,8 +1078,8 @@ TableItem* Parser::Factor()
 */
 TableItem* Parser::CallFuncState()// sum(a+2, b)
 {
-    #ifdef DEBUG
-    cout<<"in call function state"<<endl;
+#ifdef DEBUG
+    cout<<"This is function call state"<<endl;
 #endif // DEBUG
     TableItem* func = GetItemByName(curToken->name());// 获取该函数的符号表项
     if(!func)
@@ -1136,8 +1142,8 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
 */
 void Parser::GiveState()
 {
-    #ifdef DEBUG
-    cout<<"in give state"<<endl;
+#ifdef DEBUG
+    cout<<"This is an assignment!"<<endl;
 #endif // DEBUG
     TableItem* dst = GetItemByName(curToken->name()); // 被赋值对象的符号表项
     if(!dst)
@@ -1210,8 +1216,8 @@ void Parser::GiveState()
 */
 void Parser::ReturnState()// return (2*3) or return
 {
-    #ifdef DEBUG
-    cout<<"in return state"<<endl;
+#ifdef DEBUG
+    cout<<"This is return statement!"<<endl;
 #endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
@@ -1239,8 +1245,8 @@ void Parser::ReturnState()// return (2*3) or return
 */
 void Parser::ScanfState()
 {
-    #ifdef DEBUG
-    cout<<"in scanf state"<<endl;
+#ifdef DEBUG
+    cout<<"This is a scanf statement!"<<endl;
 #endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
@@ -1300,8 +1306,8 @@ void Parser::ScanfState()
 */
 void Parser::PrintState()
 {
-    #ifdef DEBUG
-    cout<<"in printf state"<<endl;
+#ifdef DEBUG
+    cout<<"This is a printf statement!"<<endl;
 #endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
@@ -1441,6 +1447,7 @@ TableItem* Parser::NewTmpVal()
 {
     string tmpname = GetTempName();
     TableItem* tmp = new TableItem(tmpname, TMP);//临时变量
+    curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;
 }
@@ -1448,6 +1455,7 @@ TableItem* Parser::NewTmpVal(int constval)
 {
     string tmpname = GetTempName();
     TableItem* tmp = new TableItem(tmpname, CONST_INT, constval);//整型常量
+    curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;
 }
@@ -1455,6 +1463,7 @@ TableItem* Parser::NewTmpVal(char constchar)
 {
     string tmpname = GetTempName();
     TableItem* tmp = new TableItem(tmpname, CONST_CHAR, constchar);//字符常量
+    curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;
 }
@@ -1466,6 +1475,7 @@ TableItem* Parser::NewTmpVal(string conststr)
     conststr.erase(conststr.end()-1);
     conststr.erase(conststr.begin());
     tmp->paraName.push_back(conststr);
+    curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;
 }
@@ -1473,6 +1483,7 @@ TableItem* Parser::GenLabel()
 {
     string tmpname = GetTempName();
     TableItem* tmp = new TableItem(tmpname, LABEL); // 表中添加标签
+    curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;
 }
@@ -1524,8 +1535,8 @@ bne $t0 $0 loop      BNE t0 0 loop_1
 */
 void Parser::IfState()
 {
-    #ifdef DEBUG
-    cout<<"in if state"<<endl;
+#ifdef DEBUG
+    cout<<"This is an if statement"<<endl;
 #endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
@@ -1570,8 +1581,8 @@ void Parser::IfState()
 */
 MiddleCode* Parser::Condition(TableItem* label, bool isIf)
 {
-    #ifdef DEBUG
-    cout<<"in condition state"<<endl;
+#ifdef DEBUG
+    cout<<"Now in condition statement!"<<endl;
 #endif // DEBUG
     MiddleCode* ret = new MiddleCode();
     TableItem* src1 = Expression();
@@ -1646,12 +1657,12 @@ MiddleCode* Parser::Condition(TableItem* label, bool isIf)
 }
 /**
  * ＜循环语句＞ ::=  for‘(’＜标识符＞＝＜表达式＞;＜条件＞;＜标识符＞＝＜标识符＞(+|-)＜步长＞‘)’＜语句＞
- * ＜步长＞ ::= ＜非零数字＞｛＜数字＞｝就是无符号整数，切出来是NUM的就行了
+ * ＜步长＞ ::= ＜非零数字＞｛＜数字＞｝就是无符号整数，切出来是NUM的就行了，但不能是0
 */
 void Parser::ForState()
 {
-    #ifdef DEBUG
-    cout<<"in for state"<<endl;
+#ifdef DEBUG
+    cout<<"This is a for statement!"<<endl;
 #endif // DEBUG
     NextToken();
     if(curToken->type() != Lpar)
@@ -1769,6 +1780,8 @@ void Parser::ForState()
                             }
                             else
                             {
+                                if(curToken->numVal() == 0)
+                                    SetError(36, "");
                                 src2 = NewTmpVal(curToken->numVal());
                                 NextToken();
                                 if(curToken->type() != Rpar)
@@ -1806,8 +1819,8 @@ switch(a+b)                 t0 = a + b
 */
 void Parser::SwitchState()
 {
-    #ifdef DEBUG
-    cout<<"in switch state"<<endl;
+#ifdef DEBUG
+    cout<<"This is switch statement!"<<endl;
 #endif // DEBUG
     NextToken();
     TableItem* ex;
@@ -1855,6 +1868,9 @@ void Parser::SwitchState()
 */
 void Parser::CaseList(TableItem* ex, TableItem* end_label)
 {
+    #ifdef DEBUG
+        cout<<"This is case statement!"<<endl;
+    #endif
     if(curToken->type() != symcase)
     {
         SetError(31);
@@ -1905,6 +1921,9 @@ void Parser::CaseList(TableItem* ex, TableItem* end_label)
 */
 void Parser::DefaultState()
 {
+    #ifdef DEBUG
+        cout<<"This is default!"<<endl;
+    #endif
     if(curToken->type() != symdefault)
     {
         SetError(35);

@@ -48,6 +48,7 @@ void ErrorHandler::MapInit()
     errorMap[33] = "The const value after \'case\' must be in same type!";
     errorMap[34] = "Expect \':\', got: ";
     errorMap[35] = "Missing default in \'switch\', got: ";
+    errorMap[36] = "Step length of for shouldn't be 0!";
 }
 /**
 print all errors!

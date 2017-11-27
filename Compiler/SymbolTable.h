@@ -12,6 +12,8 @@ class SymbolTable {
 public:
     TableItem* Insert(string name, TableItemType type, int value);
     TableItem* GetItem(string name);
+    vector<TableItem*> temp;
+    map<string, TableItem*> table;
     SymbolTable();
     ~SymbolTable();
     void HasReturnedSth(){returnsth++;} // got: return sth;
@@ -20,7 +22,6 @@ public:
     bool funcWithRetValid(){return returnsth && !returnnth;}
     bool funcWithoutRetValid(){return !returnsth;}
 private:
-    map<string, TableItem*> table;
     int returnsth;
     int returnnth;
 };

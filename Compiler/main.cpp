@@ -79,7 +79,7 @@ int main()
     mdOut.open("MiddleCode.txt", ios::out);
 
  //   cout << "Please input source code file path:" << endl;
-    string fileName("test.txt");
+    string fileName("test2.txt");
  //   cin >> fileName;
     ErrorHandler eh;
     Lexer lex(fileName, eh);

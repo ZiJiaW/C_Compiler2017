@@ -88,4 +88,8 @@ enum SymType {
     symscanf,
     symreturn
 };
+
+enum Reg {
+    ZERO = 50, v0, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, s0, s1, s2, s3, s4, s5, s6, s7, gp, sp, ra, a0, a1, a2, a3, NONE
+};
 #endif // GLOBAL_H_INCLUDED
