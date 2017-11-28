@@ -547,6 +547,7 @@ void Parser::FuncWithRet()
     {
         SetError(23, name); // just set an error
     }
+    mc.Generate(END_FUNC, curFunc);
     curTbl = &rootTable;
     return;
 }
@@ -1223,6 +1224,7 @@ void Parser::ReturnState()// return (2*3) or return
     if(curToken->type() != Lpar)
     {
         mc.Generate(RET);
+        mc.Generate(END_FUNC, curFunc);
         curTbl->HasReturnedNth();
         return;
     }
@@ -1236,6 +1238,7 @@ void Parser::ReturnState()// return (2*3) or return
         return;
     }
     mc.Generate(RET, dst);
+    mc.Generate(END_FUNC, curFunc);
     curTbl->HasReturnedSth();
     NextToken();
     return;

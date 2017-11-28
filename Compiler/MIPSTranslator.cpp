@@ -1,8 +1,12 @@
 #include <algorithm>
+#include <cstdlib>
 #include "MIPSTranslator.h"
 
 MIPSTranslator::MIPSTranslator(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl):
-mc(_mc), tbl(_tbl), tmptbl(_tmptbl){}
+mc(_mc), tbl(_tbl), tmptbl(_tmptbl){
+    for(int i = 0; i<10; i++)
+        TempRegs[i] = NULL;
+}
 
 bool MIPSTranslator::IsFunc(TableItem* t)
 {
@@ -16,9 +20,9 @@ bool MIPSTranslator::IsVar(TableItem* t)
 {
     return t->type()==INT || t->type()==CHAR;
 }
-Reg MIPSTranslator::GetRegBySx(int i)
+bool MIPSTranslator::IsConst(TableItem* t)
 {
-    return Reg(s0 + i);
+    return t->type()==CONST_INT || t->type()==CONST_CHAR;
 }
 /**
  * scan SymbolTable and TempTable to get info;
@@ -42,6 +46,10 @@ void MIPSTranslator::Initialize()
         {
             RegMap[cur] = new RegRecord(NONE, true, offgp);
             offgp += 4*cur->length();
+        }
+        else if(IsConst(cur))
+        {
+            RegMap[cur] = new RegRecord();// const常量不分配地址，生成代码的时候可能会分配寄存器用于计算
         }
         else if(IsFunc(cur))//函数
         {
@@ -110,8 +118,12 @@ void MIPSTranslator::Initialize()
                     child->offsetBySp = offsp;
                     offsp += 4 * cc->length(); // 数组空间单独占用
                 }
+                else if(IsConst(cc))
+                {
+                    RegMap[cc] = new RegRecord();
+                }
             }
-            // 遍历函数内部的临时变量表，为其中TMP类型分配栈空间和地址
+            // 遍历函数内部的临时变量表，为其中TMP类型分配栈空间和地址，同时记录字符串信息
             for(vector<TableItem*>::iterator it = cur->funcField()->temp.begin();
                 it != cur->funcField()->temp.end(); it++)
             {
@@ -120,6 +132,14 @@ void MIPSTranslator::Initialize()
                     rcd->stackSize += 4;
                     RegMap[*it] = new RegRecord(NONE, false, 0, offsp);
                     offsp += 4;
+                }
+                else if((*it)->type() == CONST_STR)
+                {
+                    ConstStrs.push_back(*it);
+                }
+                else if(IsConst(*it))
+                {
+                    RegMap[*it] = new RegRecord();
                 }
             }
             // 现在的栈空间包含了ra,所有需要保存的临时变量和局部变量
@@ -144,84 +164,572 @@ void MIPSTranslator::Initialize()
     }
 }
 /**
+ * get register name by enum var Reg;
+*/
+string MIPSTranslator::GetRegName(Reg rg)
+{
+    if(rg >= t0 && rg <= t9)
+    {
+        string ret("$t");
+        ret.append(1, char('0'+rg-t0));
+        return ret;
+    }
+    if(rg >= s0 && rg <= s7)
+    {
+        string ret("$s");
+        ret.append(1, char('0'+rg-s0));
+        return ret;
+    }
+}
+/**
+ * transform integer to string;
+*/
+string MIPSTranslator::itos(int n)
+{
+    char buffer[20];
+    itoa(n, buffer, 10);
+    return string(buffer);
+}
+/**
+ * allocate temp register to the given table item
+ * return the reg allocated to it
+ * and do the store work if someone's kicked
+*/
+Reg MIPSTranslator::TempAlloc(TableItem* t)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        if(TempRegs[i] == NULL)
+        {
+            TempRegs[i] = t;
+            RegMap[t]->rg = Reg(t0 + i);
+            usedRegs.push(i);
+            return Reg(t0 + i);
+        }
+    }
+    // fail to find a reg, choose a longest-used reg
+    int regIndex = usedRegs.front();
+//    if(!IsConst(t))//常数的寄存器使用保存优先级较低，不进行队列调整
+    {
+        usedRegs.pop();
+        usedRegs.push(regIndex);
+    }
+    TableItem* tokick = TempRegs[regIndex];
+    if(!IsConst(tokick))// const常量不分配地址，因此不需要保存
+    {
+        if(RegMap[tokick]->isGlobal)
+            codes.push_back(string("sw ")+ GetRegName(Reg(t0+regIndex)) +", " + itos(RegMap[tokick]->offsetByGp) + "($gp)");
+        else
+            codes.push_back(string("sw ")+ GetRegName(Reg(t0+regIndex)) +", " + itos(RegMap[tokick]->offsetBySp) + "($sp)");
+    }
+    RegMap[t]->rg = RegMap[tokick]->rg;
+    RegMap[tokick]->rg = NONE;
+    TempRegs[regIndex] = t;
+    return Reg(t0 + regIndex);
+}
+/**
  * scan MiddleCode to generate MIPS codes;
 */
 void MIPSTranslator::translate()
 {
     // 为字符串分配空间
-
+    codes.push_back(".data");
+    for(vector<TableItem*>::iterator it = ConstStrs.begin(); it != ConstStrs.end(); it++)
+    {
+        codes.push_back((*it)->name()+": .asciiz \""+(*it)->paraName[0]+"\"");
+    }
     // 生成跳转到main的指令和程序退出指令
-
+    codes.push_back(".text");
+    codes.push_back("jal main");
+    codes.push_back("li $v0, 10");
+    codes.push_back("syscall");
     // 逐条生成代码
     for(vector<midInstr>::iterator it = mc.code.begin(); it != mc.code.end(); it++)
     {
-        switch((*it).op)
+        midInstr t = *it;
+        switch(t.op)
         {
             case ADD: {
-
+                if(IsConst(t.src1) && IsConst(t.src2))// t=2+3
+                {
+                    int tmp = t.src1->value() + t.src2->value();
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    // li $xx, 5
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(tmp));
+                }
+                else if(IsConst(t.src1) || IsConst(t.src2))// addi $xx, $xx, 100
+                {
+                    int val = IsConst(t.src1) ? t.src1->value() : t.src2->value();
+                    TableItem* tsrc = IsConst(t.src1) ? t.src2 : t.src1;
+                    if(RegMap[tsrc]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(tsrc);
+                        if(RegMap[tsrc]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("addi " + GetRegName(RegMap[t.dst]->rg) + ", " + GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                }
+                else// add $xx, $xx, $xx
+                {
+                    // 如果没有的话，为两个源操作数分配临时寄存器，并从内存中取值
+                    if(RegMap[t.src1]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src1);
+                        if(RegMap[t.src1]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.src2]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src2);
+                        if(RegMap[t.src2]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetBySp) + "($sp)");
+                    }
+                    // 为目标操作数分配寄存器（因为直接写入，所以不需要lw）
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("add ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg));
+                }
+                break;
             }
             case SUB: {
-
+                if(IsConst(t.src1) && IsConst(t.src2))// t=2-3
+                {
+                    int tmp = t.src1->value() - t.src2->value();
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    // li $xx, 5
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(tmp));
+                }
+                else if(IsConst(t.src2))// t = a-2
+                {
+                    int val = t.src2->value();
+                    TableItem* tsrc = t.src1;
+                    if(RegMap[tsrc]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(tsrc);
+                        if(RegMap[tsrc]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("subi " + GetRegName(RegMap[t.dst]->rg) + ", " + GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                }
+                else// sub $xx, $xx, $xx  t = 2 - a or b - a
+                {
+                    if(RegMap[t.src1]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src1);
+                        if(RegMap[t.src1]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetByGp) + "($gp)");
+                        else{
+                            if(IsConst(t.src1))
+                                codes.push_back(string("li ") + GetRegName(r)+", "+itos(t.src1->value())); // li $t0, 2
+                            else
+                                codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetBySp) + "($sp)");
+                        }
+                    }
+                    if(RegMap[t.src2]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src2);
+                        if(RegMap[t.src2]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("sub ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg));
+                }
+                break;
             }
             case MUL: {
-
+                if(IsConst(t.src1) && IsConst(t.src2))// t=2*3
+                {
+                    int tmp = t.src1->value() * t.src2->value();
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    // li $xx, 6
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(tmp));
+                }
+                else if(IsConst(t.src1) || IsConst(t.src2))
+                {
+                    int val = IsConst(t.src1) ? t.src1->value() : t.src2->value();
+                    TableItem* tsrc = IsConst(t.src1) ? t.src2 : t.src1;
+                    if(RegMap[tsrc]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(tsrc);
+                        if(RegMap[tsrc]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("mulo " + GetRegName(RegMap[t.dst]->rg) + ", " + GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                }
+                else
+                {
+                    if(RegMap[t.src1]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src1);
+                        if(RegMap[t.src1]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.src2]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src2);
+                        if(RegMap[t.src2]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("mulo ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg));
+                }
+                break;
             }
             case DIV: {
-
+                if(IsConst(t.src1) && IsConst(t.src2))// t=2/3
+                {
+                    int tmp = t.src1->value() / t.src2->value();
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    // li $xx, 0
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(tmp));
+                }
+                else if(IsConst(t.src2))// t = a/2
+                {
+                    int val = t.src2->value();
+                    TableItem* tsrc = t.src1;
+                    if(RegMap[tsrc]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(tsrc);
+                        if(RegMap[tsrc]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[tsrc]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("div " + GetRegName(RegMap[t.dst]->rg) + ", " + GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                }
+                else// t = 2 / a or b / a
+                {
+                    if(RegMap[t.src1]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src1);
+                        if(RegMap[t.src1]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetByGp) + "($gp)");
+                        else{
+                            if(IsConst(t.src1))
+                                codes.push_back(string("li ") + GetRegName(r)+", "+itos(t.src1->value())); // li $t0, 2
+                            else
+                                codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src1]->offsetBySp) + "($sp)");
+                        }
+                    }
+                    if(RegMap[t.src2]->rg == NONE)
+                    {
+                        Reg r = TempAlloc(t.src2);
+                        if(RegMap[t.src2]->isGlobal)
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetByGp) + "($gp)");
+                        else
+                            codes.push_back(string("lw ") + GetRegName(r) + ", " + itos(RegMap[t.src2]->offsetBySp) + "($sp)");
+                    }
+                    if(RegMap[t.dst]->rg == NONE)
+                        TempAlloc(t.dst);
+                    codes.push_back(string("div ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg));
+                }
+                break;
             }
             case GIV: {
-
+                if(RegMap[t.dst]->rg == NONE)
+                    TempAlloc(t.dst);
+                if(IsConst(t.src1))// li $t0, 5   t = 5
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(t.src1->value()));
+                else // move $t0, $t1 or lw $t0, xx($xp)
+                {
+                    if(RegMap[t.src1]->rg == NONE)
+                    {
+                        if(RegMap[t.src1]->isGlobal)
+                            codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(RegMap[t.src1]->offsetByGp)+"($gp)");
+                        else
+                            codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(RegMap[t.src1]->offsetBySp)+"($sp)");
+                    }
+                    else
+                        codes.push_back(string("move ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg));
+                }
+                break;
             }
             case SETL: {
-
+                codes.push_back(string("Label_")+t.dst->name()+":");// 标签名为Label_txx
+                break;
             }
             case FUNC: {
-
+                codes.push_back(t.dst->name()+":"); // 函数入口为函数名， 例如sum:  main:
+                // 参数部分的栈空间开辟由调用者进行，故这里开辟的栈空间不包括参数
+                int tosub = RegMap[t.dst]->stackSize - 4*t.dst->paramCount();
+                codes.push_back(string("subi $sp, $sp, ")+itos(tosub));
+                // store $ra
+                codes.push_back(string("sw $ra, ")+itos(tosub-4)+"($sp)");
+                // store $s0-$s7 if necessary
+                for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                {
+                    codes.push_back(string("sw ") + GetRegName(*it) + ", " +
+                    itos(tosub - 4 * (2 + it - RegMap[t.dst]->funcUsed.begin())) + "($sp)");
+                }
+                break;
             }
             case PARA: {
-
+                break; // 暂时参数通过压栈传递，不进行寄存器分配，因此不需要做什么
             }
             case PUSH: {
-
+                codes.push_back(string("subi $sp, $sp, 4"));
+                if(IsConst(t.dst))// PUSH 2
+                {
+                    TempAlloc(t.dst);
+                    codes.push_back(string("li ") + GetRegName(RegMap[t.dst]->rg) + ", " + itos(t.dst->value()));
+                    codes.push_back(string("sw ") + GetRegName(RegMap[t.dst]->rg) + ", " + "0($sp)");
+                }
+                else// push t1
+                {
+                    if(RegMap[t.dst]->rg == NONE)
+                    {
+                        TempAlloc(t.dst);
+                        if(RegMap[t.dst]->isGlobal)
+                            codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(RegMap[t.dst]->offsetByGp)+"($gp)");
+                        else
+                            codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+itos(RegMap[t.dst]->offsetBySp)+"($sp)");
+                        codes.push_back(string("sw ")+GetRegName(RegMap[t.dst]->rg)+", 0($sp)");
+                    }
+                    else
+                    {
+                        codes.push_back(string("sw ")+GetRegName(RegMap[t.dst]->rg)+", 0($sp)");
+                    }
+                }
+                break;
             }
             case CALL: {
-
+                codes.push_back(string("jal ")+t.dst->name());
+                break;
             }
             case JMP: {
-
+                codes.push_back(string("j ")+"Label_"+t.dst->name());// j Label_txx
+                break;
             }
-            case NEG: {
-
+            case NEG: {// NEG t1 t2
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                if(RegMap[t.dst]->rg == NONE)
+                    TempAlloc(t.dst);
+                codes.push_back(string("neg ")+GetRegName(RegMap[t.dst]->rg)+", "+GetRegName(RegMap[t.src1]->rg));
+                break;
             }
-            case RET: {
-
+            case RET: {// RET t; or RET;
+                if(t.dst != NULL)
+                {
+                    if(RegMap[t.dst]->rg == NONE)
+                        codes.push_back(string("lw $v0, ")+address(t.dst));
+                    else
+                        codes.push_back(string("move $v0, ")+GetRegName(RegMap[t.dst]->rg));
+                }
+                break;
             }
-            case GET_RET: {
-
+            case GET_RET: {//GET_RET t means t gets $v0
+                if(RegMap[t.dst]->rg == NONE)
+                    codes.push_back(string("sw $v0, ")+address(t.dst));
+                else
+                    codes.push_back(string("move ")+GetRegName(RegMap[t.dst]->rg)+", $v0");
+                break;
             }
-            case GIV_ARR: {
-
+            case GIV_ARR: { // a[2] = t
+                if(IsConst(t.src2))
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src2]->rg)+", "+itos(t.src2->value()));
+                }
+                else if(RegMap[t.src2]->rg == NONE)
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
+                }
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                codes.push_back(string("sll ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", 2");
+                if(RegMap[t.dst]->isGlobal)
+                {
+                    codes.push_back(string("add ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $gp");
+                    codes.push_back(string("sw ") + GetRegName(RegMap[t.src2]->rg) + ", " +
+                    itos(RegMap[t.dst]->offsetByGp)+"("+GetRegName(RegMap[t.src1]->rg)+")");
+                }
+                else
+                {
+                    codes.push_back(string("add ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $sp");
+                    codes.push_back(string("sw ") + GetRegName(RegMap[t.src2]->rg) + ", " +
+                    itos(RegMap[t.dst]->offsetBySp)+"("+GetRegName(RegMap[t.src1]->rg)+")");
+                }
+                break;
             }
-            case ARR_GIV: {
-
+            case ARR_GIV: {//t = a[x]
+                if(RegMap[t.dst]->rg == NONE)
+                    TempAlloc(t.dst);
+                if(IsConst(t.src2))
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src2]->rg)+", "+itos(t.src2->value()));
+                }
+                else if(RegMap[t.src2]->rg == NONE)
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
+                }
+                codes.push_back(string("sll ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", 2");
+                if(RegMap[t.src1]->isGlobal)
+                {
+                    codes.push_back(string("add ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $gp");
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+
+                    itos(RegMap[t.src1]->offsetByGp)+"("+GetRegName(RegMap[t.src2]->rg)+")");
+                }
+                else
+                {
+                    codes.push_back(string("add ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $sp");
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+
+                    itos(RegMap[t.src1]->offsetBySp)+"("+GetRegName(RegMap[t.src2]->rg)+")");
+                }
+                break;
             }
             case BEQ: {
-
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                if(IsConst(t.src2))
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src2]->rg)+", "+itos(t.src2->value()));
+                }
+                else if(RegMap[t.src2]->rg == NONE)
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
+                }
+                codes.push_back("beq "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg)+", Label_"+t.dst->name());
+                break;
             }
             case BNE: {
-
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                if(IsConst(t.src2))
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src2]->rg)+", "+itos(t.src2->value()));
+                }
+                else if(RegMap[t.src2]->rg == NONE)
+                {
+                    TempAlloc(t.src2);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
+                }
+                codes.push_back("bne "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg)+", Label_"+t.dst->name());
+                break;
             }
-            case BGEZ: {
-
+            case BGEZ: { // BGEZ LABEL src1  bgez $s0, label
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                codes.push_back("bgez "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                break;
             }
             case BGTZ: {
-
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                codes.push_back("bgtz "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                break;
             }
             case BLEZ: {
-
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                codes.push_back("blez "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                break;
             }
             case BLTZ: {
-
+                if(IsConst(t.src1))
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("li ")+GetRegName(RegMap[t.src1]->rg)+", "+itos(t.src1->value()));
+                }
+                else if(RegMap[t.src1]->rg == NONE)
+                {
+                    TempAlloc(t.src1);
+                    codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
+                }
+                codes.push_back("bltz "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                break;
             }
             case WRITE: {
 
@@ -230,11 +738,31 @@ void MIPSTranslator::translate()
 
             }
             case END_FUNC: {
-
+                int tosub = RegMap[t.dst]->stackSize - 4*t.dst->paramCount();
+                // restore $ra
+                codes.push_back(string("lw $ra, ")+itos(tosub-4)+"($sp)");
+                // restore $s0-$s7 if necessary
+                for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                {
+                    codes.push_back(string("lw ") + GetRegName(*it) + ", " +
+                    itos(tosub - 4 * (2 + it - RegMap[t.dst]->funcUsed.begin())) + "($sp)");
+                }
+                codes.push_back(string("addi $sp, $sp, ")+itos(RegMap[t.dst]->stackSize));
+                break;
             }
             case END_PROC: {
-
+                codes.push_back(string("jr $ra"));
+                break;
             }
+            default: break;
         }
     }
+}
+
+string MIPSTranslator::address(TableItem *t)
+{
+    if(RegMap[t]->isGlobal)
+        return itos(RegMap[t]->offsetByGp) + "($gp)";
+    else
+        return itos(RegMap[t]->offsetBySp) + "($sp)";
 }

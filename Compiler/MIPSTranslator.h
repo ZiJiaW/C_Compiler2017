@@ -2,6 +2,7 @@
 #define MIPSTRANSLATOR_H_INCLUDED
 #include "MiddleCode.h"
 #include "SymbolTable.h"
+#include <queue>
 struct RegRecord {
     Reg rg;
     vector<Reg> funcUsed;
@@ -22,8 +23,6 @@ private:
     SymbolTable &tbl;
     vector<TableItem*> &tmptbl;
 
-
-    vector<TableItem*> GlobalVar;
     vector<TableItem*> ConstStrs;
     map<TableItem*, RegRecord*> RegMap;
     void Initialize();
@@ -31,8 +30,14 @@ private:
     inline bool IsFunc(TableItem* t);
     inline bool IsArray(TableItem* t);
     inline bool IsVar(TableItem* t);
+    inline bool IsConst(TableItem* t);
+    string GetRegName(Reg rg);
+    string itos(int n);
+    string address(TableItem *t);
 
-    Reg GetRegBySx(int i);
+    TableItem* TempRegs[10];
+    Reg TempAlloc(TableItem* t);
+    queue<int> usedRegs;
 };
 
 #endif // MIPSTRANSLATOR_H_INCLUDED
