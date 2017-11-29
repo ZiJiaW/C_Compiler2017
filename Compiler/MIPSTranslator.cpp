@@ -36,16 +36,27 @@ void MIPSTranslator::Initialize()
     int offgp = 0;
     for(map<string, TableItem*>::iterator p = tbl.table.begin(); p != tbl.table.end(); p++)
     {
+        #ifdef mipsDEBUG
+            cout<<"test: "<<offgp<<endl;
+        #endif // mipsDEBUG
         TableItem* cur = p->second;
         if(IsVar(cur))// 全局变量，进行地址分配
         {
             RegMap[cur] = new RegRecord(NONE, true, offgp);
             offgp += 4;
+            #ifdef mipsDEBUG
+            cout<<"Global var:"<<cur->name()<<endl;
+            cout<<RegMap[cur]->isGlobal<<"      "<<RegMap[cur]->offsetByGp<<endl;
+            #endif // mipsDEBUG
         }
         else if(IsArray(cur))//全局数组
         {
             RegMap[cur] = new RegRecord(NONE, true, offgp);
             offgp += 4*cur->length();
+            #ifdef mipsDEBUG
+            cout<<"Global array:"<<cur->name()<<"length: "<<cur->length()<<endl;
+            cout<<RegMap[cur]->isGlobal<<"     "<<RegMap[cur]->offsetByGp<<endl;
+            #endif // mipsDEBUG
         }
         else if(IsConst(cur))
         {
@@ -59,6 +70,8 @@ void MIPSTranslator::Initialize()
             {
                 rcd->stackSize += 8; // 保存$ra & $fp
             }
+            else
+                rcd->stackSize += 4;
             // 遍历函数子符号表的局部变量，分配地址，计算栈空间
             // 同时通过引用计数进行全局寄存器分配
             int offfp = 0; // 地址相对fp偏移
@@ -113,9 +126,13 @@ void MIPSTranslator::Initialize()
                 }
                 else if(IsArray(cc))// 局部数组
                 {
+                    #ifdef mipsDEBUG
+                    cout<<"Local array: "<<cc->name()<<endl;
+                    #endif // mipsDEBUG
                     RegRecord* child = new RegRecord();
                     rcd->stackSize += 4 * cc->length(); // 分配数组空间
                     child->offsetByFp = offfp;
+                    RegMap[cc] = child;
                     offfp += 4 * cc->length(); // 数组空间单独占用
                 }
                 else if(IsConst(cc))
@@ -225,10 +242,40 @@ Reg MIPSTranslator::TempAlloc(TableItem* t)
     return Reg(t0 + regIndex);
 }
 /**
+ * refresh all temp registers and store their values into RAM;
+ * It's called when stepping into a new block;
+*/
+void MIPSTranslator::TempRefresh(bool tostore)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        if(TempRegs[i] != NULL)
+        {
+            if(!IsConst(TempRegs[i]) && tostore)
+                codes.push_back(string("sw ")+ GetRegName(Reg(t0+i)) +", " + address(TempRegs[i]));
+            RegMap[TempRegs[i]]->rg = NONE;
+            TempRegs[i] = NULL;
+        }
+    }
+    usedRegs = queue<int>();
+}
+/**
+ * refresh one register after pushing sth into next func's stack;
+*/
+void MIPSTranslator::Refresh(Reg rg)
+{
+    if(rg >= t0 && rg <= t9)
+    {
+        RegMap[TempRegs[rg - t0]]->rg = NONE;
+        TempRegs[rg - t0] = NULL;
+    }
+}
+/**
  * scan MiddleCode to generate MIPS codes;
 */
 void MIPSTranslator::translate()
 {
+    Initialize();
     // 为字符串分配空间
     codes.push_back(".data");
     for(vector<TableItem*>::iterator it = ConstStrs.begin(); it != ConstStrs.end(); it++)
@@ -244,6 +291,9 @@ void MIPSTranslator::translate()
     for(vector<midInstr>::iterator it = mc.code.begin(); it != mc.code.end(); it++)
     {
         midInstr t = *it;
+        #ifdef mipsDEBUG
+        cout<<GetOpString(t.op)<<endl;
+        #endif // mipsDEBUG
         switch(t.op)
         {
             case ADD: {
@@ -452,15 +502,23 @@ void MIPSTranslator::translate()
                 // 参数部分的栈空间开辟由调用者进行，故这里开辟的栈空间不包括参数
                 int tosub = RegMap[t.dst]->stackSize - 4*t.dst->paramCount();
                 codes.push_back(string("subi $sp, $sp, ")+itos(tosub));
-                // store $ra and $fp
-                codes.push_back(string("sw $ra, ")+itos(tosub-4)+"($sp)");
-                codes.push_back(string("sw $fp, ")+itos(tosub-8)+"($sp)");
-                codes.push_back(string("move $fp, $sp"));
-                // store $s0-$s7 if necessary
-                for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                if(t.dst->name()!="main")
                 {
-                    codes.push_back(string("sw ") + GetRegName(*it) + ", " +
-                    itos(tosub - 4 * (3 + it - RegMap[t.dst]->funcUsed.begin())) + "($fp)");
+                    // store $ra and $fp
+                    codes.push_back(string("sw $ra, ")+itos(tosub-4)+"($sp)");
+                    codes.push_back(string("sw $fp, ")+itos(tosub-8)+"($sp)");
+                    codes.push_back(string("move $fp, $sp"));
+                    // store $s0-$s7 if necessary
+                    for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                    {
+                        codes.push_back(string("sw ") + GetRegName(*it) + ", " +
+                        itos(tosub - 4 * (3 + it - RegMap[t.dst]->funcUsed.begin())) + "($fp)");
+                    }
+                }
+                else
+                {
+                    codes.push_back(string("sw $ra, ")+itos(tosub-4)+"($sp)");
+                    codes.push_back(string("move $fp, $sp"));
                 }
                 break;
             }
@@ -474,6 +532,7 @@ void MIPSTranslator::translate()
                     TempAlloc(t.dst);
                     codes.push_back(string("li ") + GetRegName(RegMap[t.dst]->rg) + ", " + itos(t.dst->value()));
                     codes.push_back(string("sw ") + GetRegName(RegMap[t.dst]->rg) + ", " + "0($sp)");
+                    Refresh(RegMap[t.dst]->rg);
                 }
                 else// push t1
                 {
@@ -482,6 +541,7 @@ void MIPSTranslator::translate()
                         TempAlloc(t.dst);
                         codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+address(t.dst));
                         codes.push_back(string("sw ")+GetRegName(RegMap[t.dst]->rg)+", 0($sp)");
+                        Refresh(RegMap[t.dst]->rg);
                     }
                     else
                     {
@@ -491,10 +551,12 @@ void MIPSTranslator::translate()
                 break;
             }
             case CALL: {
+                TempRefresh();
                 codes.push_back(string("jal ")+t.dst->name());
                 break;
             }
             case JMP: {
+                TempRefresh();
                 codes.push_back(string("j ")+"Label_"+t.dst->name());// j Label_txx
                 break;
             }
@@ -532,6 +594,9 @@ void MIPSTranslator::translate()
                 break;
             }
             case GIV_ARR: { // a[2] = t
+                #ifdef mipsDEBUG
+                cout<<"array to give:"<<t.dst->name()<<endl;
+                #endif // mipsDEBUG
                 if(IsConst(t.src2))
                 {
                     TempAlloc(t.src2);
@@ -553,6 +618,9 @@ void MIPSTranslator::translate()
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
                 codes.push_back(string("sll ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", 2");
+                #ifdef mipsDEBUG
+                cout<<"Global array:"<<t.dst->name()<<RegMap[t.dst]->isGlobal<<endl;
+                #endif // mipsDEBUG
                 if(RegMap[t.dst]->isGlobal)
                 {
                     codes.push_back(string("add ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $gp");
@@ -616,7 +684,10 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src2);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
                 }
-                codes.push_back("beq "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                Reg t2 = RegMap[t.src2]->rg;
+                TempRefresh();
+                codes.push_back(string("beq ")+GetRegName(t1)+", "+GetRegName(t2)+", Label_"+t.dst->name());
                 break;
             }
             case BNE: {
@@ -640,7 +711,10 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src2);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
                 }
-                codes.push_back("bne "+GetRegName(RegMap[t.src1]->rg)+", "+GetRegName(RegMap[t.src2]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                Reg t2 = RegMap[t.src2]->rg;
+                TempRefresh();
+                codes.push_back(string("bne ")+GetRegName(t1)+", "+GetRegName(t2)+", Label_"+t.dst->name());
                 break;
             }
             case BGEZ: { // BGEZ LABEL src1  bgez $s0, label
@@ -654,7 +728,9 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src1);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
-                codes.push_back("bgez "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                TempRefresh();
+                codes.push_back(string("bgez ")+GetRegName(t1)+", Label_"+t.dst->name());
                 break;
             }
             case BGTZ: {
@@ -668,7 +744,9 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src1);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
-                codes.push_back("bgtz "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                TempRefresh();
+                codes.push_back(string("bgtz ")+GetRegName(t1)+", Label_"+t.dst->name());
                 break;
             }
             case BLEZ: {
@@ -682,7 +760,9 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src1);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
-                codes.push_back("blez "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                TempRefresh();
+                codes.push_back(string("blez ")+GetRegName(t1)+", Label_"+t.dst->name());
                 break;
             }
             case BLTZ: {
@@ -696,7 +776,9 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src1);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
-                codes.push_back("bltz "+GetRegName(RegMap[t.src1]->rg)+", Label_"+t.dst->name());
+                Reg t1 = RegMap[t.src1]->rg;
+                TempRefresh();
+                codes.push_back(string("bltz ")+GetRegName(t1)+", Label_"+t.dst->name());
                 break;
             }
             case WRITE: {// WRITE dst
@@ -726,16 +808,20 @@ void MIPSTranslator::translate()
                 }
                 else if(IsArray(t.dst))  // 数组的输出
                 {
-                    codes.push_back(string("lw $a0, ")+address(t.dst));
-                    codes.push_back(string("addi $a1, $a0, ")+itos(4*t.dst->length()));
+                    if(RegMap[t.dst]->isGlobal)
+                        codes.push_back(string("addi $a1, $fp, ")+itos(RegMap[t.dst]->offsetByGp));
+                    else
+                        codes.push_back(string("addi $a1, $fp, ")+itos(RegMap[t.dst]->offsetByFp));
+                    codes.push_back(string("addi $a2, $a1, ")+itos(4*t.dst->length()));
                     codes.push_back(string("Array_Print_")+t.dst->name()+":");
+                    codes.push_back(string("lw $a0, 0($a1)"));
                     if(t.dst->type() == INT_ARR)
                         codes.push_back(string("li $v0, 1"));
                     else
                         codes.push_back(string("li $v0, 11"));
                     codes.push_back(string("syscall"));
-                    codes.push_back(string("addi $a0, $a0, 4"));
-                    codes.push_back(string("bne $a0, $a1, Array_Print_")+t.dst->name());
+                    codes.push_back(string("addi $a1, $a1, 4"));
+                    codes.push_back(string("bne $a1, $a2, Array_Print_")+t.dst->name());
                 }
                 else//其余输出均按整数处理
                 {
@@ -746,6 +832,7 @@ void MIPSTranslator::translate()
                     codes.push_back(string("li $v0, 1"));
                     codes.push_back(string("syscall"));
                 }
+                break;
             }
             case READ: {//READ dst
                 if(t.dst->type() == INT)
@@ -766,22 +853,30 @@ void MIPSTranslator::translate()
                     else
                         codes.push_back(string("move ")+GetRegName(RegMap[t.dst]->rg)+", $v0");
                 }
+                break;
             }
             case END_FUNC: {
                 int tosub = RegMap[t.dst]->stackSize - 4*t.dst->paramCount();
-                // restore $ra and $fp
                 codes.push_back(string("lw $ra, ")+itos(tosub-4)+"($sp)");
-                codes.push_back(string("lw $fp, ")+itos(tosub-8)+"($sp)");
-                // restore $s0-$s7 if necessary
-                for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                if(t.dst->name()!="main")
                 {
-                    codes.push_back(string("lw ") + GetRegName(*it) + ", " +
-                    itos(tosub - 4 * (3 + it - RegMap[t.dst]->funcUsed.begin())) + "($sp)");
+                    TempRefresh(false);
+                    // restore $ra and $fp
+                    codes.push_back(string("lw $fp, ")+itos(tosub-8)+"($sp)");
+                    // restore $s0-$s7 if necessary
+                    for(vector<Reg>::iterator it = RegMap[t.dst]->funcUsed.begin(); it != RegMap[t.dst]->funcUsed.end(); it++)
+                    {
+                        codes.push_back(string("lw ") + GetRegName(*it) + ", " +
+                        itos(tosub - 4 * (3 + it - RegMap[t.dst]->funcUsed.begin())) + "($sp)");
+                    }
                 }
                 codes.push_back(string("addi $sp, $sp, ")+itos(RegMap[t.dst]->stackSize));
+                codes.push_back(string("jr $ra"));
                 break;
             }
             case END_PROC: {
+                codes.push_back(string("lw $ra, ")+itos(RegMap[t.dst]->stackSize-4)+"($sp)");
+                codes.push_back(string("addi $sp, $sp, ")+itos(RegMap[t.dst]->stackSize));
                 codes.push_back(string("jr $ra"));
                 break;
             }

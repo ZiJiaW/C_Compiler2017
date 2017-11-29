@@ -874,7 +874,7 @@ void Parser::MainFunc()
         // gen middle code here: FUNC main
         mc.Generate(FUNC, curItem);
     }
-    TableItem* nowfunc = curItem; // 保存当前函数原型的符号表指针
+    curFunc = curItem; // 保存当前函数原型的符号表指针
     ComplexSentence();
     if(curToken->type() != Rbrac)
     {
@@ -886,7 +886,7 @@ void Parser::MainFunc()
     }
     else
     {// gen middle code: end of program
-        mc.Generate(END_PROC, nowfunc);
+        mc.Generate(END_PROC, curFunc);
     }
     NextToken();
 }
@@ -1704,7 +1704,13 @@ void Parser::ForState()
     }
     TableItem* loop = GenLabel();
     mc.Generate(SETL, loop);
-    MiddleCode* cdt = Condition(loop);
+    //***********************************
+    int conditionStart = curIndex;
+    SkipUntil(SEMICOLON);//先跳过条件，记录条件的开始位置
+    BackToken(1);
+    //MiddleCode* cdt = Condition(loop);
+
+    //*********************************
     OpCode op;
     TableItem* dst;
     TableItem* src1;
@@ -1802,8 +1808,16 @@ void Parser::ForState()
         }
     }
     Sentence();// 内容
+    int endfor = curIndex; // 记录结束的位置
     mc.Generate(op, dst, src1, src2);//步长
+    // 回退到条件起点，进行条件判断
+    curIndex = conditionStart;
+    curToken = tokens[curIndex];
+    MiddleCode* cdt = Condition(loop);
     mc.Concat(cdt);//最后添加跳转判断
+    // 返回到结束位置
+    curIndex = endfor;
+    curToken = tokens[curIndex];
 }
 
 /**

@@ -7,6 +7,7 @@
 #include "TableItem.h"
 #include "SymbolTable.h"
 #include "Parser.h"
+#include "MIPSTranslator.h"
 using namespace std;
 string GetOpString(OpCode op)
 {
@@ -74,19 +75,20 @@ int main()
         eh.PrintError();
     }*/
 
-    ofstream lexOut, mdOut;
+    ofstream lexOut, mdOut, mipsOut;
     lexOut.open("LexerResult.txt", ios::out);
     mdOut.open("MiddleCode.txt", ios::out);
-
- //   cout << "Please input source code file path:" << endl;
-    string fileName("test2.txt");
- //   cin >> fileName;
+    mipsOut.open("MIPS.asm", ios::out);
+    cout << "Please input source code file path:" << endl;
+    string fileName;
+    cin >> fileName;
     ErrorHandler eh;
     Lexer lex(fileName, eh);
     MiddleCode mc;
     SymbolTable rt;
     Parser par(lex, eh, mc, rt);
     par.StartParsing();
+    MIPSTranslator mtr(mc, rt, rt.temp);
     if(eh.IsSuccessful())
     {
         cout<<"Build Succeeded! Now output the result......"<<endl;
@@ -95,6 +97,7 @@ int main()
             lexOut<<"In line:"<<(*p)->lineNum()<<"    "<<GetTypeName((*p)->type())<<": "<<(*p)->name()<<endl;
         }
         cout<<"Lexer Result in file: LexerResult.txt!"<<endl;
+        cout<<"Now output the MiddleCode......"<<endl;
         for(vector<midInstr>::iterator p = mc.code.begin(); p != mc.code.end(); p++)
         {
             string dsts, src1s, src2s;
@@ -141,6 +144,11 @@ int main()
             mdOut<<endl;
         }
         cout<<"Middle Code in file: MiddleCode.txt!"<<endl;
+        cout<<"Try to translate......"<<endl;
+        mtr.translate();
+        for(vector<string>::iterator it = mtr.codes.begin(); it != mtr.codes.end(); it++)
+            mipsOut<<*it<<endl;
+        cout<<"MIPS code in file: MIPS.txt!"<<endl;
     }
     else
     {

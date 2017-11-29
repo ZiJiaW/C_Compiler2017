@@ -3,6 +3,7 @@
 #include "MiddleCode.h"
 #include "SymbolTable.h"
 #include <queue>
+#define mipsDEBUG
 struct RegRecord {
     Reg rg;
     vector<Reg> funcUsed;
@@ -38,6 +39,8 @@ private:
     TableItem* TempRegs[10];
     Reg TempAlloc(TableItem* t);
     queue<int> usedRegs;
+    void TempRefresh(bool tostore = true);
+    void Refresh(Reg rg);
 };
 
 #endif // MIPSTRANSLATOR_H_INCLUDED
@@ -59,21 +62,21 @@ private:
  *             全局寄存器
  *
  * ******************************************
- * 
- * 
+ *
+ *
  *            局部和临时变量
- * 
- * 
+ *
+ *
  * ******************************************
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
 */

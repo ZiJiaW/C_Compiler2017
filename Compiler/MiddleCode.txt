@@ -1,20 +1,507 @@
+STR         1000          
+STR         -32           
+STR         24            
+STR         'r'           
+STR         '5'           
+STR         'a'           
+STR         't'           
+STR         15            
+STR         0             
+STR         0             
+STR         '*'           
+STR         x             
+STR         a5            
+STR         _s            
+STR         i             
+STR         aaw5          
+STR         _errIndex         
+STR         hea125         
+STR         arr           
+STR         arr2          
+STR         arr3          
+STR         qw            
+STR         qw2           
+STR         qw3           
+STR         gl            
+STR         ch            
+STR         fffk          
+STR         ffk           
+STR         ch2           
+FUNC        testDeclare         
+STR         312           
+STR         142           
+STR         'a'           
+STR         'C'           
+STR         '3'           
+STR         arr           
+STR         arr_2         
+STR         sum           
+STR         sub           
+STR         hih           
+STR         lowct         
+STR         uppp          
+GIV         t0       312      
+GIV         t1       142      
+ADD         t2       t0       t1   
+GIV         sum      t2       
+GIV         t3       'a'      
+SUB         t5       t3       32   
+GIV         hih      t5       
+GIV         t6       'C'      
+ADD         t8       t6       32   
+GIV         lowct    t8       
+GIV         t9       '3'      
+ADD         t11      t9       1    
+GIV         uppp     t11      
+GIV         t13      312      
+SUB         t15      t13      300  
+GIV_ARR     arr      0        t15  
+GIV         t17      142      
+SUB         t19      t17      140  
+GIV_ARR     arr      1        t19  
+WRITE       sum           
+WRITE       t20           
+WRITE       hih           
+WRITE       t21           
+WRITE       lowct         
+WRITE       t22           
+WRITE       uppp          
+WRITE       t23           
+ARR_GIV     t25      arr      0    
+WRITE       t25           
+WRITE       t26           
+ARR_GIV     t28      arr      1    
+WRITE       t28           
+END_FUNC    testDeclare         
+FUNC        testForAndArray         
+STR         p             
+STR         n             
+STR         m             
+STR         sum           
+GIV         t29      'a'      
+GIV         p        t29      
+SETL        t30           
+GIV         t32      p        
+GIV         t33      'a'      
+SUB         t34      t32      t33  
+GIV         t35      p        
+GIV_ARR     ch2      t34      t35  
+GIV         t36      p        
+GIV         t37      'a'      
+SUB         t38      t36      t37  
+ARR_GIV     t39      ch2      t38  
+WRITE       t39           
+ADD         p        p        1    
+GIV         t40      p        
+SUB         t42      t40      'z'  
+BLEZ        t30      t42      
+GIV         m        50       
+GIV         sum      0        
+GIV         n        100      
+SETL        t46           
+GIV         t48      sum      
+GIV         t49      n        
+ADD         t50      t48      t49  
+GIV         sum      t50      
+GIV         t52      n        
+GIV         t53      m        
+BNE         t51      t52      t53  
+GIV         m        20       
+JMP         t55           
+SETL        t51           
+GIV         t56      n        
+SUB         t58      t56      1    
+GIV         n        t58      
+SETL        t55           
+SUB         n        n        1    
+GIV         t59      n        
+GIV         t60      m        
+SUB         t61      t59      t60  
+BGEZ        t46      t61      
+WRITE       t62           
+WRITE       sum           
+GIV         n        0        
+SETL        t64           
+GIV         t67      n        
+SUB         t69      t67      0    
+BGEZ        t66      t69      
+RET                   
+END_FUNC    testForAndArray         
+JMP         t70           
+SETL        t66           
+SETL        t70           
+WRITE       t71           
+SUB         n        n        1    
+GIV         t72      n        
+SUB         t74      t72      0    
+BLTZ        t64      t74      
+END_FUNC    testForAndArray         
 FUNC        sum           
 PARA        a             
 PARA        b             
-GIV         t0       a        
-GIV         t1       b        
-ADD         t2       t0       t1   
-RET         t2            
-FUNC        main          
-STR         t             
-GIV         t        3        
-GIV         t4       t        
-PUSH        t4            
-GIV         t5       t        
-ADD         t7       t5       1    
-PUSH        t7            
+GIV         t75      a        
+GIV         t76      b        
+ADD         t77      t75      t76  
+RET         t77           
+END_FUNC    sum           
+END_FUNC    sum           
+FUNC        testExpression         
+STR         32            
+STR         -13           
+STR         24            
+STR         '9'           
+STR         '0'           
+STR         '+'           
+STR         cal           
+STR         loop          
+STR         s             
+GIV         s        0        
+GIV         t79      32       
+GIV         t80      -13      
+ADD         t82      t80      31   
+GIV         t83      '9'      
+SUB         t85      t83      '0'  
+DIV         t87      t85      3    
+SUB         t88      t82      t87  
+ADD         t90      t88      0    
+MUL         t91      t79      t90  
+NEG         t92      t91      
+DIV         t95      11       5    
+NEG         t96      t95      
+ARR_GIV     t98      ch2      9    
+SUB         t100     t98      'a'  
+MUL         t102     t100     2    
+ADD         t103     t96      t102 
+ADD         t104     t92      t103 
+GIV         cal      t104     
+WRITE       cal           
+GIV         t106     32       
+GIV         t107     -13      
+ADD         t109     t107     31   
+GIV         t110     '9'      
+SUB         t112     t110     '0'  
+DIV         t114     t112     3    
+SUB         t115     t109     t114 
+ADD         t117     t115     0    
+MUL         t118     t106     t117 
+NEG         t119     t118     
+DIV         t122     11       5    
+NEG         t123     t122     
+ARR_GIV     t125     ch2      9    
+SUB         t127     t125     'a'  
+MUL         t129     t127     2    
+ADD         t130     t123     t129 
+ADD         t131     t119     t130 
+GIV         t132     -13      
+ADD         t134     t132     31   
+SUB         t135     t131     t134 
+BGTZ        t105     t135     
+WRITE       t136          
+JMP         t137          
+SETL        t105          
+WRITE       t138          
+SETL        t137          
+NEG         t140     3        
+ADD         t142     t140     0    
+GIV         t143     -13      
+ADD         t145     t143     31   
+PUSH        t145          
+GIV         t146     '9'      
+SUB         t148     t146     '0'  
+DIV         t150     t148     3    
+NEG         t151     t150     
+ADD         t153     t151     0    
+PUSH        t153          
 CALL        sum           
-GET_RET     t8            
-GIV         t        t8       
-WRITE       t             
+GET_RET     t154          
+ADD         t155     t142     t154 
+GIV         loop     t155     
+SETL        t156          
+GIV         t158     s        
+GIV         t159     loop     
+ADD         t160     t158     t159 
+GIV         s        t160     
+ADD         loop     loop     1    
+GIV         t161     loop     
+ARR_GIV     t164     ch2      9    
+SUB         t166     t164     'a'  
+MUL         t168     t166     2    
+ADD         t169     15       t168 
+PUSH        t169          
+MUL         t172     3        5    
+DIV         t174     t172     7    
+NEG         t175     t174     
+DIV         t178     17       2    
+SUB         t179     t175     t178 
+PUSH        t179          
+CALL        sum           
+GET_RET     t180          
+SUB         t181     t161     t180 
+BLEZ        t156     t181     
+WRITE       t182          
+WRITE       loop          
+GIV         t183     32       
+GIV         t184     -13      
+ADD         t186     t184     31   
+GIV         t187     '9'      
+SUB         t189     t187     '0'  
+DIV         t191     t189     3    
+SUB         t192     t186     t191 
+ADD         t194     t192     0    
+MUL         t195     t183     t194 
+NEG         t196     t195     
+DIV         t199     11       5    
+NEG         t200     t199     
+ARR_GIV     t202     ch2      9    
+SUB         t204     t202     'a'  
+MUL         t206     t204     2    
+ADD         t207     t200     t206 
+ADD         t208     t196     t207 
+RET         t208          
+END_FUNC    testExpression         
+END_FUNC    testExpression         
+FUNC        sq_dist         
+PARA        x1            
+PARA        x2            
+PARA        x3            
+PARA        x4            
+STR         ret           
+GIV         t209     x2       
+GIV         t210     x1       
+SUB         t211     t209     t210 
+GIV         t212     x2       
+GIV         t213     x1       
+SUB         t214     t212     t213 
+MUL         t215     t211     t214 
+GIV         t216     x4       
+GIV         t217     x3       
+SUB         t218     t216     t217 
+GIV         t219     x4       
+GIV         t220     x3       
+SUB         t221     t219     t220 
+MUL         t222     t218     t221 
+ADD         t223     t215     t222 
+GIV         ret      t223     
+GIV         t224     ret      
+ADD         t226     t224     1    
+MUL         t228     t226     2    
+DIV         t230     t228     2    
+SUB         t232     t230     1    
+RET         t232          
+END_FUNC    sq_dist         
+END_FUNC    sq_dist         
+FUNC        fact          
+PARA        n             
+GIV         t234     n        
+BNE         t233     t234     1    
+RET         1             
+END_FUNC    fact          
+JMP         t237          
+SETL        t233          
+SETL        t237          
+GIV         t238     n        
+GIV         t239     n        
+SUB         t241     t239     1    
+PUSH        t241          
+CALL        fact          
+GET_RET     t242          
+MUL         t243     t238     t242 
+RET         t243          
+END_FUNC    fact          
+END_FUNC    fact          
+FUNC        reduce         
+PARA        n             
+GIV         t245     n        
+BNE         t244     t245     1    
+RET         1             
+END_FUNC    reduce         
+JMP         t248          
+SETL        t244          
+SETL        t248          
+GIV         t249     n        
+GIV         t250     n        
+SUB         t252     t250     1    
+PUSH        t252          
+CALL        reduce         
+GET_RET     t253          
+ADD         t254     t249     t253 
+RET         t254          
+END_FUNC    reduce         
+END_FUNC    reduce         
+FUNC        reduce_to_m         
+PARA        n             
+PARA        m             
+STR         r             
+GIV         r        0        
+SETL        t256          
+GIV         t258     r        
+GIV         t259     n        
+ADD         t260     t258     t259 
+GIV         r        t260     
+SUB         n        n        1    
+GIV         t261     n        
+GIV         t262     m        
+SUB         t263     t261     t262 
+BGEZ        t256     t263     
+GIV         t264     r        
+RET         t264          
+END_FUNC    reduce_to_m         
+END_FUNC    reduce_to_m         
+FUNC        Lower         
+PARA        ch            
+GIV         t265     ch       
+ADD         t267     t265     32   
+RET         t267          
+END_FUNC    Lower         
+END_FUNC    Lower         
+FUNC        main          
+STR         81            
+STR         -15           
+STR         13            
+STR         0             
+STR         0             
+STR         'q'           
+STR         's'           
+STR         '1'           
+STR         '+'           
+STR         i             
+STR         k             
+STR         j             
+STR         arr           
+STR         arr2          
+STR         t             
+STR         s1            
+STR         s2            
+STR         s3            
+STR         s5            
+STR         s4            
+READ        i             
+READ        s1            
+GIV         t269     i        
+SUB         t271     t269     0    
+BGEZ        t268     t271     
+WRITE       t272          
+RET                   
+END_FUNC    main          
+JMP         t273          
+SETL        t268          
+SETL        t273          
+GIV         t275     i        
+DIV         t278     12       6    
+MUL         t280     t278     5    
+ADD         t282     t280     1    
+SUB         t284     t282     1    
+BEQ         t274     t275     t284 
+WRITE       t285          
+WRITE       i             
+RET                   
+END_FUNC    main          
+JMP         t286          
+SETL        t274          
+SETL        t286          
+GIV         t288     s1       
+BNE         t290     50       t288 
+GIV         t291     i        
+ADD         t293     t291     6    
+DIV         t295     t293     2    
+PUSH        t295          
+CALL        fact          
+GET_RET     t296          
+GIV         k        t296     
+WRITE       t297          
+WRITE       k             
+JMP         t287          
+SETL        t290          
+BNE         t299     51       t288 
+GIV         t300     1000     
+GIV         t301     i        
+DIV         t302     t300     t301 
+GIV         t303     s1       
+ADD         t304     t302     t303 
+SUB         t306     t304     '0'  
+PUSH        t306          
+CALL        reduce         
+GET_RET     t307          
+GIV         j        t307     
+WRITE       t308          
+WRITE       j             
+JMP         t287          
+SETL        t299          
+BNE         t310     52       t288 
+GIV         t311     1000     
+GIV         t312     81       
+ADD         t313     t311     t312 
+GIV         t314     -15      
+MUL         t316     t314     5    
+ADD         t317     t313     t316 
+GIV         t318     0        
+SUB         t319     t317     t318 
+GIV         t320     's'      
+ADD         t321     t319     t320 
+SUB         t323     t321     's'  
+SUB         t325     t323     6    
+DIV         t327     t325     10   
+GIV         t328     '1'      
+ADD         t329     t327     t328 
+SUB         t331     t329     '1'  
+GIV         k        t331     
+WRITE       t332          
+GIV         t333     k        
+PUSH        t333          
+PUSH        50            
+CALL        reduce_to_m         
+GET_RET     t335          
+WRITE       t335          
+JMP         t287          
+SETL        t310          
+BNE         t337     53       t288 
+GIV         s1       'A'      
+SETL        t339          
+GIV         t341     s1       
+SUB         t343     t341     'A'  
+GIV         t344     s1       
+PUSH        t344          
+CALL        Lower         
+GET_RET     t345          
+GIV_ARR     s5       t343     t345 
+GIV         t346     s1       
+SUB         t348     t346     'A'  
+ARR_GIV     t349     s5       t348 
+WRITE       t349          
+ADD         s1       s1       1    
+GIV         t350     s1       
+SUB         t352     t350     'Z'  
+BLEZ        t339     t352     
+WRITE       s5            
+JMP         t287          
+SETL        t337          
+BNE         t354     54       t288 
+CALL        testDeclare         
+WRITE       t355          
+CALL        testForAndArray         
+JMP         t287          
+SETL        t354          
+BNE         t357     55       t288 
+CALL        testExpression         
+GET_RET     t358          
+GIV         k        t358     
+WRITE       t359          
+WRITE       k             
+JMP         t287          
+SETL        t357          
+WRITE       t360          
+GIV         t361     i        
+PUSH        t361          
+GIV         t362     81       
+PUSH        t362          
+GIV         t363     -15      
+PUSH        t363          
+GIV         t364     13       
+PUSH        t364          
+CALL        sq_dist         
+GET_RET     t365          
+WRITE       t365          
+SETL        t287          
+RET                   
+END_FUNC    main          
 END_PROC    main          

@@ -1,5 +1,6 @@
-const int MAX = 1000;
+const int MAX = 1000, a32 = -32, b24 = 24;
 const char qop ='r', name = '5';
+const char ca = 'a', ct = 't';
 const int index2a01 = 15, i1a = 0, p = 0;
 const char c = '*';
 char x, a5;
@@ -8,6 +9,73 @@ int i, aaw5, _errIndex;
 int hea125;
 char arr[101], arr2, arr3[255];
 int qw[102], qw2[17], qw3;
+int gl, ch[26];
+char fffk, ffk[31], ch2[26];
+void testDeclare()
+{
+    const int a32 = 312, _b = +142;
+    const char h = 'a', ct = 'C', pp = '3';
+    int arr[1],arr_2[15], sum, sub;
+    char hih, lowct, uppp;
+    sum = a32+_b;
+    hih = h-32;
+    lowct = ct+32;
+    uppp = pp+1;
+    arr[0] = a32-300;
+    arr[1] = _b-140;
+    printf(sum);printf(" ",hih);printf(" ",lowct);printf(" ",uppp);
+    printf(" ",arr[0]);printf(" ",arr[1]);
+}
+void testForAndArray()
+{
+    char p;
+    int n, m, sum;
+    for(p=ca;p<='z';p=p+1)
+    {
+        ch2[p-ca]=p;
+        printf(ch2[p-ca]);
+    }
+    m = 50;
+    sum = 0;
+    for(n = 100; n>=m; n = n - 1)
+    {
+        sum = sum + n;
+        if(n==m)
+            m = 20;
+        else
+            n = n -1;
+    }
+    printf(" ",sum);
+    for(n = 0; n <0; n = n - 1)
+    {
+        if(n<0)
+            return;
+        printf("For is ok!");
+    }
+}
+int sum(int a, int b)
+{
+    return (a+b);
+}
+int testExpression()
+{
+    const int t = +32, r = -13, q = 24;
+    const char e = '9', w = '0', y = '+';
+    int cal, loop, s;
+    s = 0;
+    cal = -t*(r+31-(e-'0')/3+0)+(-+11/5+(ch2[9]-'a')*2);
+    printf(cal);
+    if(-t*(r+31-(e-'0')/3+0)+(-+11/5+(ch2[9]-'a')*2)<=r+31)
+        printf("-t*(r+31-(e-'0')/3+0)+(-+11/5+(ch2[9]-'a')*2)<=r+31");
+    else
+        printf("-t*(r+31-(e-'0')/3+0)+(-+11/5+(ch2[9]-'a')*2)>r+31");
+    for(loop =-3+0+sum(r+31,-(e-'0')/3+0); loop <=sum(15+(ch2[9]-'a')*2, -3*5/7-17/2); loop = loop + 1)
+    {
+        s = s + loop;
+    }
+    printf(" ", loop);
+    return (-t*(r+31-(e-'0')/3+0)+(-+11/5+(ch2[9]-'a')*2));
+}
 int sq_dist(int x1, int x2, int x3, int x4)
 {
     int ret;
@@ -35,12 +103,6 @@ int reduce_to_m(int n, int m)
     }
     return (r);
 }
-void test_print()
-{
-    printf("hello world",'a'+2*9/2);
-    printf("got a k/--!");
-    printf(index2a01*2/6+13);
-}
 char Lower(char ch)
 {
     return (ch+32);
@@ -66,29 +128,32 @@ void main(){
         ;
     switch(s1)
     {
-        case '1': test_print();
-        case '2': {k = fact(i/2); printf("In case 2: k=",k);}
-        case '3': {
-            for(j=0; j<10; j = j+1)
-                arr[j]=n3+j;
-            k = i*(n+-5--7+2)/(arr[1]-4);
-            printf("In case 3: k=", k);
-        }
-        case '4':{
+        case '2': {k = fact((i+6)/2); printf("In case 2: k=",k);}
+        case '3':{
             j = reduce(MAX/i+s1-'0');
             printf("In case 4: reduce(104)=",j);
         }
-        case '5':{
+        case '4':{
             k = (MAX+n+n1*5-n6+q2-'s'-6)/10+q3-'1';
             printf("In case 5: reduce_to_m(100,50)=", reduce_to_m(k,50));
         }
-        case '6':{
+        case '5':{
             for(s1 = 'A'; s1 <='Z'; s1=s1+1)
+            {
                 s5[s1-'A']=Lower(s1); 
+                printf(s5[s1-'A']);
+           }
             printf(s5);
         }
+        case '6':{
+            testDeclare();
+            printf("   ");
+            testForAndArray();
+        }
+        case '7':{
+             k = testExpression();
+              printf("result: ",k);}
         default:{
-            for(k=0;k<0;k=k+1) 
                 printf("default:",sq_dist(i,n,n1,n3));
         }
     }

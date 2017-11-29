@@ -19,5 +19,5 @@ public:
     vector<midInstr> code;
     void Concat(MiddleCode* md);
 };
-
+string GetOpString(OpCode op);
 #endif // MIDDLECODE_H_INCLUDED
