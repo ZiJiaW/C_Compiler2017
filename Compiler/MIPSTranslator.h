@@ -8,10 +8,10 @@ struct RegRecord {
     vector<Reg> funcUsed;
     bool isGlobal;
     int offsetByGp; // if array it's base address
-    int offsetBySp; // if array it's base address
+    int offsetByFp; // if array it's base address
     int stackSize;
-    RegRecord(Reg _rg = NONE, bool ig = false, int og = 0, int os = 0, int ss = 0):
-    rg(_rg), isGlobal(ig), offsetByGp(og), offsetBySp(os), stackSize(ss){}
+    RegRecord(Reg _rg = NONE, bool ig = false, int og = 0, int of = 0, int ss = 0):
+    rg(_rg), isGlobal(ig), offsetByGp(og), offsetByFp(of), stackSize(ss){}
 };
 class MIPSTranslator {
 public:
@@ -46,8 +46,34 @@ private:
 /**思路：
  * 先扫描符号表和临时变量表，为全局变量和字符串分配地址空间于静态数据区$gp的上下区间，记录全局变量相对gp的偏移
  * 扫描到函数时，统计其内部所有用到的参数和变量（局部和临时），计算其栈空间
- * 并记录每一个内部变量的对应于sp的偏移
+ * 并记录每一个内部变量的对应于fp的偏移
+ * 运行栈结构:
+ * *****************************************栈顶
+ *             参数1                       *
+ *             参数2                       *由调用者进行压栈操作
+ *             参数3......                 *
+ * *****************************************
+ *              $fp
+ *              $ra
+ * *****************************************
+ *             全局寄存器
+ *
+ * ******************************************
  * 
- * 排序函数内部局部变量在中间代码中的引用次数，分配全局寄存器，并记录到该函数对应的数据结构中
+ * 
+ *            局部和临时变量
+ * 
+ * 
+ * ******************************************
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * 
 */
