@@ -975,7 +975,8 @@ TableItem* Parser::Factor()
             TableItem* src2 = Expression();
             if(!src2)
                 return NULL;
-            TableItem* dst = NewTmpVal();
+            TableItemType tp = src1->type() == CHAR_ARR ? CHAR : TMP;
+            TableItem* dst = NewTmpVal(tp);
             mc.Generate(ARR_GIV, dst, src1, src2);
             if(curToken->type() != Rspar)
             {
@@ -1013,7 +1014,8 @@ TableItem* Parser::Factor()
             else if(t->type() == CONST_INT || t->type() == CONST_CHAR ||
                     t->type() == INT || t->type() == CHAR)
             {
-                TableItem* dst = NewTmpVal(); // 这里多做一次赋值，为了一致性
+                TableItemType tp = t->type() == CHAR || t->type() == CONST_CHAR ? CHAR : TMP;
+                TableItem* dst = NewTmpVal(tp); // 这里多做一次赋值，为了一致性
                 mc.Generate(GIV, dst, t);
                 return dst;
             }
@@ -1133,7 +1135,8 @@ TableItem* Parser::CallFuncState()// sum(a+2, b)
     NextToken();
     if(func->type() == VOID_FUNC)
         return NULL;
-    TableItem* result = NewTmpVal();
+    TableItemType tp = func->type() == CHAR_FUNC ? CHAR : TMP;
+    TableItem* result = NewTmpVal(tp);
     mc.Generate(GET_RET, result);
     return result;
 }
@@ -1446,10 +1449,10 @@ string Parser::GetTempName()
     itoa(tempIndex, buffer, 10);
     return string("t") + string(buffer);
 }
-TableItem* Parser::NewTmpVal()
+TableItem* Parser::NewTmpVal(TableItemType tp)
 {
     string tmpname = GetTempName();
-    TableItem* tmp = new TableItem(tmpname, TMP);//临时变量
+    TableItem* tmp = new TableItem(tmpname, tp);//临时变量
     curTbl->temp.push_back(tmp);
     TempTable.push_back(tmp);
     return tmp;

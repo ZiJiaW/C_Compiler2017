@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include "MIPSTranslator.h"
 
-MIPSTranslator::MIPSTranslator(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl):
-mc(_mc), tbl(_tbl), tmptbl(_tmptbl){
+MIPSTranslator::MIPSTranslator(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl, TableItem* Zero):
+mc(_mc), tbl(_tbl), tmptbl(_tmptbl), constZero(Zero){
     for(int i = 0; i<10; i++)
         TempRegs[i] = NULL;
 }
@@ -34,6 +34,8 @@ bool MIPSTranslator::IsConst(TableItem* t)
 void MIPSTranslator::Initialize()
 {
     int offgp = 0;
+    RegMap[constZero] = new RegRecord();
+    RegMap[constZero]->rg = ZERO;
     for(map<string, TableItem*>::iterator p = tbl.table.begin(); p != tbl.table.end(); p++)
     {
         #ifdef mipsDEBUG
@@ -144,7 +146,7 @@ void MIPSTranslator::Initialize()
             for(vector<TableItem*>::iterator it = cur->funcField()->temp.begin();
                 it != cur->funcField()->temp.end(); it++)
             {
-                if((*it)->type() == TMP)
+                if((*it)->type() == TMP || (*it)->type() == CHAR)
                 {
                     rcd->stackSize += 4;
                     RegMap[*it] = new RegRecord(NONE, false, 0, offfp);
@@ -197,6 +199,8 @@ string MIPSTranslator::GetRegName(Reg rg)
         ret.append(1, char('0'+rg-s0));
         return ret;
     }
+    if(rg == ZERO)
+        return string("$0");
 }
 /**
  * transform integer to string;
@@ -494,6 +498,7 @@ void MIPSTranslator::translate()
                 break;
             }
             case SETL: {
+                TempRefresh();
                 codes.push_back(string("Label_")+t.dst->name()+":");// 标签名为Label_txx
                 break;
             }
@@ -579,7 +584,9 @@ void MIPSTranslator::translate()
             case RET: {// RET t; or RET;
                 if(t.dst != NULL)
                 {
-                    if(RegMap[t.dst]->rg == NONE)
+                    if(IsConst(t.dst))
+                        codes.push_back(string("li $v0, ")+itos(t.dst->value()));
+                    else if(RegMap[t.dst]->rg == NONE)
                         codes.push_back(string("lw $v0, ")+address(t.dst));
                     else
                         codes.push_back(string("move $v0, ")+GetRegName(RegMap[t.dst]->rg));

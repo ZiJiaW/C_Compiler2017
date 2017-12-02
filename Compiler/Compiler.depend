@@ -25,10 +25,11 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1511959502 source:e:\compiler2017\compiler\main.cpp
+1512221855 source:e:\compiler2017\compiler\main.cpp
 	<iostream>
 	<string>
 	<fstream>
+	<cstdlib>
 	"ErrorHandler.h"
 	"Lexer.h"
 	"Symbol.h"
@@ -48,13 +49,13 @@
 	<vector>
 	<map>
 
-1511959210 source:e:\compiler2017\compiler\parser.cpp
+1512199666 source:e:\compiler2017\compiler\parser.cpp
 	<vector>
 	<cstdlib>
 	"Symbol.h"
 	"Parser.h"
 
-1511958667 e:\compiler2017\compiler\parser.h
+1512198408 e:\compiler2017\compiler\parser.h
 	"Lexer.h"
 	"MiddleCode.h"
 	"SymbolTable.h"
@@ -83,7 +84,7 @@
 	"global.h"
 	"TableItem.h"
 
-1511793109 e:\compiler2017\compiler\global.h
+1512221872 e:\compiler2017\compiler\global.h
 
 1511941227 e:\compiler2017\compiler\middlecode.h
 	<iostream>
@@ -93,12 +94,12 @@
 	"global.h"
 	"TableItem.h"
 
-1511953512 e:\compiler2017\compiler\mipstranslator.h
+1512218441 e:\compiler2017\compiler\mipstranslator.h
 	"MiddleCode.h"
 	"SymbolTable.h"
 	<queue>
 
-1511954081 source:e:\compiler2017\compiler\mipstranslator.cpp
+1512216603 source:e:\compiler2017\compiler\mipstranslator.cpp
 	<algorithm>
 	<cstdlib>
 	"MIPSTranslator.h"

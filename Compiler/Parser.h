@@ -12,16 +12,15 @@ public:
     void StartParsing();     // start entry
     vector<TableItem*> TempTable;   // 临时变量表，用于存储表达式中生成的中间变量，和常量, 以及零
     vector<Symbol*> tokens;   // 保存所有单词
+    TableItem* constZero; // 用作条件判断的常量0的符号表项指针
 private:
     int tempIndex;  // 当前临时变量在临时变量表中的位置
 
-    TableItem* NewTmpVal();     // 在临时变量表中添加临时变量，并返回其表项指针
+    TableItem* NewTmpVal(TableItemType tp = TMP);     // 在临时变量表中添加临时变量，并返回其表项指针
     TableItem* NewTmpVal(int constval); // 添加整数常量，返回表项指针
     TableItem* NewTmpVal(char constchar); // 添加字符常量，返回表项指针
     TableItem* NewTmpVal(string conststr); // 添加字符串常量
     TableItem* GenLabel(); // 生成一个用于跳转的标签
-    TableItem* constZero; // 用作条件判断的常量0的符号表项指针
-
     int curIndex;
     Symbol* curToken; // 指向当前正在处理的单词
     void NextToken();        // 获取下一个单词

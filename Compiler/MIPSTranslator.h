@@ -3,7 +3,7 @@
 #include "MiddleCode.h"
 #include "SymbolTable.h"
 #include <queue>
-#define mipsDEBUG
+//#define mipsDEBUG
 struct RegRecord {
     Reg rg;
     vector<Reg> funcUsed;
@@ -16,14 +16,14 @@ struct RegRecord {
 };
 class MIPSTranslator {
 public:
-    MIPSTranslator(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl);
+    MIPSTranslator(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl, TableItem* Zero);
     void translate();
     vector<string> codes;
 private:
     MiddleCode &mc;
     SymbolTable &tbl;
     vector<TableItem*> &tmptbl;
-
+    TableItem* constZero;
     vector<TableItem*> ConstStrs;
     map<TableItem*, RegRecord*> RegMap;
     void Initialize();
