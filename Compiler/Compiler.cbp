@@ -40,6 +40,8 @@
 		<Unit filename="MIPSTranslator.h" />
 		<Unit filename="MiddleCode.cpp" />
 		<Unit filename="MiddleCode.h" />
+		<Unit filename="Optimizer.cpp" />
+		<Unit filename="Optimizer.h" />
 		<Unit filename="Parser.cpp" />
 		<Unit filename="Parser.h" />
 		<Unit filename="Symbol.cpp" />

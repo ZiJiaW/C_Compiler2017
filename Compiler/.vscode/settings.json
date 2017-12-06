@@ -17,6 +17,7 @@
         "xutility": "cpp",
         "type_traits": "cpp",
         "algorithm": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "utility": "cpp"
     }
 }
