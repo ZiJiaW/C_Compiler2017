@@ -21,7 +21,9 @@ bool Optimizer::IsCalc(midInstr md)
     return md.op == ADD || md.op == SUB || md.op == DIV || md.op == MUL
         || md.op == GIV || md.op == ARR_GIV || md.op == GIV_ARR || md.op == NEG;
 }
-
+/**
+ * extend DAG by analyze middle code;
+*/
 void Graph::Extend(midInstr md)
 {
     // op dst src1 src2
@@ -102,6 +104,37 @@ int Graph::Insert(TableItem* t)
     else
         return it->second;
 }
+/**
+ * 根据得到的Map生成反向索引
+*/
+void Graph::GenIndexRecord()
+{
+    indexRecord.resize(nodes.size());
+    for(map<TableItem*, int>::iterator p = record.begin(); p != record.end(); p++)
+    {
+        indexRecord[p->second].push_back(p->first);
+    }
+}
+/**
+ * get TableItem by index(int)
+*/
+TableItem* Graph::GetItemByIndex(int index)
+{
+    if(index = -1)
+        return NULL;
+    else
+        return nodes[index].isLeaf ? nodes[index].val : indexRecord[index][0];
+}
+/**
+ * judge if t is a temp variable;
+*/
+bool Optimizer::IsTemp(TableItem* t)
+{
+    return find(tmptbl.begin(), tmptbl.end(), t) != tmptbl.end();
+}
+/**
+ * do optimize by construct a DAG
+*/
 void Optimizer::DAGOpt()
 {
     vector<midInstr> block;
@@ -127,29 +160,83 @@ void Optimizer::DAGOpt()
                 if(p->second->funcField() != NULL)
                 {
                     if(p->second->funcField()->table.find(t->name()) != p->second->funcField()->table.end())
+                    {
                         curTbl = p->second->funcField();
+                        break;
+                    }
                     else if(find(p->second->funcField()->temp.begin(), p->second->funcField()->temp.end(), t)
-                    != p->second->funcField()->temp.end())
+                            != p->second->funcField()->temp.end())
+                    {
                         curTbl = p->second->funcField();
+                        break;
+                    }
                 }
             }
             // 建立DAG图
             Graph graph;
             vector<TableItem*> givens;// 记录被复制过的变量
+            map<TableItem*, int> useCount;// 记录每个变量使用次数
             for(vector<midInstr>::iterator p = block.begin(); p != block.end(); p++)
             {
                 graph.Extend(*p);
-                givens.push_back(p->dst);
+                givens.push_back(p->dst); // 记录被赋值过的变量
+                // 记录每个变量的出现次数
+                if(p->dst != NULL)
+                    useCount[p->dst] = useCount.find(p->dst) != useCount.end() ? useCount[p->dst]+1 : 1;
+                if(p->src1 != NULL)
+                    useCount[p->src1] = useCount.find(p->src1) != useCount.end() ? useCount[p->src1]+1 : 1;
+                if(p->src2 != NULL)
+                    useCount[p->src2] = useCount.find(p->src2) != useCount.end() ? useCount[p->src2]+1 : 1;
             }
+            graph.GenIndexRecord();
             // 如果作为叶子节点的变量被重新赋值过，则需要生成a0 = a之类的预赋值
             for(vector<Node>::iterator p = graph.nodes.begin(); p != graph.nodes.end(); p++)
             {
-                if(p->isLeaf)
+                if(p->isLeaf && find(givens.begin(), givens.end(), p->val) != givens.end())
                 {
-                    vector<TableItem*>::iterator it = find(givens.begin(), givens.end(), p->val);
-                    if(it != givens.end())
+                    TableItem* newtmp = new TableItem(p->val->name()+"_tmp", TMP);
+                    curTbl->temp.push_back(newtmp);
+                    tmptbl.push_back(newtmp);
+                    result.push_back(midInstr(GIV, newtmp, p->val));// 导出的初始代码为 a0 = a
+                    p->val = newtmp;// 之后替换原叶子节点值为 a0
+                }
+            }
+            // 下面确定中间代码导出顺序
+            vector<int> out;
+            vector<bool> exported(graph.nodes.size(), false);
+            while(out.size() != graph.nodes.size())
+            {
+                for(vector<Node>::iterator p = graph.nodes.begin(); p != graph.nodes.end(); p++)
+                {
+                    bool ok = true;
+                    for(vector<int>::iterator it = p->fathers.begin(); it != p->fathers.end(); it++)
+                        ok &= exported[*it];
+                    if(ok)
                     {
-
+                        out.push_back(p-graph.nodes.begin());
+                        exported[p-graph.nodes.begin()] = true;
+                    }
+                }
+            }
+            // 根据上面的顺序进行代码导出
+            for(vector<int>::reverse_iterator p = out.rbegin(); p != out.rend(); p++)
+            {
+                bool has = false;
+                for(vector<TableItem*>::iterator it = graph.indexRecord[*p].begin(); it != graph.indexRecord[*p].end(); it++)
+                {
+                    if(graph.nodes[*p].isLeaf)// 对于叶子节点，作赋值操作
+                    {
+                        result.push_back(midInstr(GIV, *it, graph.nodes[*p].val));
+                    }
+                    else if(graph.indexRecord[*p].size() == 1)
+                    {
+                        result.push_back(midInstr(graph.nodes[*p].op,
+                        graph.GetItemByIndex(graph.nodes[*p].leftChild),
+                        graph.GetItemByIndex(graph.nodes[*p].rightChild)));
+                    }
+                    else
+                    {
+                        
                     }
                 }
             }

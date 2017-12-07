@@ -10,11 +10,13 @@ private:
     void PeepHoleOpt(); // 窥孔优化
     void DAGOpt(); // DAG图优化
     bool IsCalc(midInstr md);
+    
     MiddleCode &mc;
     SymbolTable &tbl;
     vector<TableItem*> &tmptbl;
     vector<midInstr> result; // 存放优化后的代码
-    bool IsTemp(TableItem* t);
+    bool IsTemp(TableItem* t); // 是否是临时变量
+    
 };
 // DAG图的结点
 struct Node {
@@ -32,5 +34,8 @@ struct Graph {
     map<TableItem*, int> record;// 索引表
     void Extend(midInstr md);// 根据中间代码扩充DAG图
     int Insert(TableItem *t);
+    vector<vector<TableItem*> > indexRecord;
+    void GenIndexRecord();
+    TableItem* GetItemByIndex(int index);
 };
 #endif // OPTIMIZER_H_INCLUDED
