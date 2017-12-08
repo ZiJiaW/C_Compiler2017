@@ -25,11 +25,10 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1512221855 source:e:\compiler2017\compiler\main.cpp
-	<iostream>
-	<string>
+1512735309 source:e:\compiler2017\compiler\main.cpp
 	<fstream>
 	<cstdlib>
+	"MiddleCode.h"
 	"ErrorHandler.h"
 	"Lexer.h"
 	"Symbol.h"
@@ -37,6 +36,7 @@
 	"SymbolTable.h"
 	"Parser.h"
 	"MIPSTranslator.h"
+	"Optimizer.h"
 
 1511528521 source:e:\compiler2017\compiler\symbol.cpp
 	<iostream>
@@ -86,7 +86,7 @@
 
 1512221872 e:\compiler2017\compiler\global.h
 
-1511941227 e:\compiler2017\compiler\middlecode.h
+1512700446 e:\compiler2017\compiler\middlecode.h
 	<iostream>
 	<string>
 	<vector>
@@ -103,4 +103,12 @@
 	<algorithm>
 	<cstdlib>
 	"MIPSTranslator.h"
+
+1512735875 e:\compiler2017\compiler\optimizer.h
+	"MiddleCode.h"
+	"SymbolTable.h"
+
+1512736148 source:e:\compiler2017\compiler\optimizer.cpp
+	<algorithm>
+	"Optimizer.h"
 

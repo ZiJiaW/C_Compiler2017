@@ -2,6 +2,7 @@
 #define OPTIMIZER_H_INCLUDED
 #include "MiddleCode.h"
 #include "SymbolTable.h"
+#define OPTDEBUG
 class Optimizer {
 public:
     Optimizer(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl);
@@ -10,13 +11,14 @@ private:
     void PeepHoleOpt(); // 窥孔优化
     void DAGOpt(); // DAG图优化
     bool IsCalc(midInstr md);
-    
+
     MiddleCode &mc;
     SymbolTable &tbl;
     vector<TableItem*> &tmptbl;
     vector<midInstr> result; // 存放优化后的代码
     bool IsTemp(TableItem* t); // 是否是临时变量
-    
+    bool IsConst(TableItem* t);
+    bool AbleOpt(midInstr md);
 };
 // DAG图的结点
 struct Node {

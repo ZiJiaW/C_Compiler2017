@@ -7,19 +7,96 @@ mc(_mc), tbl(_tbl), tmptbl(_tmptbl){}
 
 void Optimizer::optimize()
 {
-
+    PeepHoleOpt();
+    DAGOpt();
+    PeepHoleOpt();
 }
-
+bool Optimizer::IsConst(TableItem* t)
+{
+    return t->type()==CONST_CHAR || t->type()==CONST_INT;
+}
+bool Optimizer::AbleOpt(midInstr md)
+{
+    return md.op == ADD || md.op == SUB || md.op == DIV || md.op == MUL
+        || md.op == GIV || md.op == NEG ;
+}
 void Optimizer::PeepHoleOpt()
 {
-
+    result = mc.code;
+    while(true)
+    {
+        bool opted = false;
+        vector<midInstr> ret;
+        for(vector<midInstr>::iterator p = result.begin(); p != result.end(); p++)
+        {
+            if(p->op == GIV && IsTemp(p->dst) && ((p+1)->src1 == p->dst || (p+1)->src2 == p->dst) && AbleOpt(*(p+1)))
+            {
+                TableItem* src1 = (p+1)->src1 == p->dst ? p->src1 : (p+1)->src1;
+                TableItem* src2 = (p+1)->src2 == p->dst ? p->src1 : (p+1)->src2;
+                ret.push_back(midInstr((p+1)->op, (p+1)->dst, src1, src2));
+                ++p;
+                opted = true;
+                continue;
+            }
+            else if((p+1)->op == GIV && IsTemp(p->dst) && (p+1)->src1==p->dst && IsCalc(*p))
+            {
+                ret.push_back(midInstr(p->op, (p+1)->dst, p->src1, p->src2));
+                opted = true;
+                ++p;
+                continue;
+            }
+            else if(IsCalc(*p) && p->op != GIV && p->op != NEG && IsConst(p->src1) && IsConst(p->src2))
+            {
+                opted = true;
+                TableItem* t = p->dst;
+                SymbolTable* curTbl = NULL;
+                for(map<string, TableItem*>::iterator q = tbl.table.begin(); q != tbl.table.end(); q++)
+                {
+                    if(q->second->funcField() != NULL)
+                    {
+                        if(q->second->funcField()->table.find(t->name()) != q->second->funcField()->table.end())
+                        {
+                            curTbl = q->second->funcField();
+                            break;
+                        }
+                        else if(find(q->second->funcField()->temp.begin(), q->second->funcField()->temp.end(), t)
+                                != q->second->funcField()->temp.end())
+                        {
+                            curTbl = q->second->funcField();
+                            break;
+                        }
+                    }
+                }
+                int val = p->op==ADD ? p->src1->value()+p->src2->value() :
+                          p->op==SUB ? p->src1->value()-p->src2->value() :
+                          p->op==MUL ? p->src1->value()*p->src2->value() :
+                          p->op==DIV ? p->src1->value()/p->src2->value() : 0;
+                TableItem* toadd = new TableItem(p->dst->name()+"_temp", CONST_INT, val);
+                tmptbl.push_back(toadd);
+                (curTbl->temp).push_back(toadd);
+                ret.push_back(midInstr(GIV, p->dst, toadd));
+                continue;
+            }
+            else if(p->op == GIV && p->dst == p->src1)
+            {
+                opted = true;
+                continue;
+            }
+            ret.push_back(*p);
+        }
+        if(opted)
+            result = ret;
+        else
+            break;
+    }
+    mc.code = result;
 }
 
-/*判断是否是基本块中的指令*/
+/**判断是否是基本块中的指令*/
 bool Optimizer::IsCalc(midInstr md)
 {
     return md.op == ADD || md.op == SUB || md.op == DIV || md.op == MUL
-        || md.op == GIV || md.op == ARR_GIV || md.op == GIV_ARR || md.op == NEG;
+        || md.op == GIV || md.op == NEG;
 }
 /**
  * extend DAG by analyze middle code;
@@ -67,7 +144,7 @@ void Graph::Extend(midInstr md)
     else if(md.op == NEG)
     {
         int s = Insert(md.src1);
-        for(vector<int>::iterator it = nodes[s1].fathers.begin(); it != nodes[s1].fathers.end(); it++)
+        for(vector<int>::iterator it = nodes[s].fathers.begin(); it != nodes[s].fathers.end(); it++)
         {
             if(nodes[*it].op == md.op)
             {
@@ -120,7 +197,7 @@ void Graph::GenIndexRecord()
 */
 TableItem* Graph::GetItemByIndex(int index)
 {
-    if(index = -1)
+    if(index == -1)
         return NULL;
     else
         return nodes[index].isLeaf ? nodes[index].val : indexRecord[index][0];
@@ -138,8 +215,12 @@ bool Optimizer::IsTemp(TableItem* t)
 void Optimizer::DAGOpt()
 {
     vector<midInstr> block;
+    result.clear();
     for(vector<midInstr>::iterator it = mc.code.begin(); it != mc.code.end(); it++)
     {
+        #ifdef OPTDEBUG
+        cout<<string(it->dst!=NULL?it->dst->name():"none")<<endl;
+        #endif // OPTDEBUG
         if(!IsCalc(*it) && block.empty())
         {
             result.push_back(*it);
@@ -189,6 +270,21 @@ void Optimizer::DAGOpt()
                     useCount[p->src2] = useCount.find(p->src2) != useCount.end() ? useCount[p->src2]+1 : 1;
             }
             graph.GenIndexRecord();
+            // 如果没有中间节点的共享，则没有公共表达式，不需要优化
+            bool isToOpt = false;
+            for(int i = 0; i < graph.nodes.size(); ++i)
+            {
+                if(graph.indexRecord[i].size()>1)
+                    isToOpt = true;
+            }
+            if(!isToOpt)
+            {
+                for(vector<midInstr>::iterator p = block.begin(); p != block.end(); ++p)
+                    result.push_back(*p);
+                result.push_back(*it);
+                block.clear();
+                continue;
+            }
             // 如果作为叶子节点的变量被重新赋值过，则需要生成a0 = a之类的预赋值
             for(vector<Node>::iterator p = graph.nodes.begin(); p != graph.nodes.end(); p++)
             {
@@ -201,6 +297,8 @@ void Optimizer::DAGOpt()
                     p->val = newtmp;// 之后替换原叶子节点值为 a0
                 }
             }
+            // 防止预赋值指令被优化掉，加一条无效指令
+            result.push_back(midInstr(STR, NULL));
             // 下面确定中间代码导出顺序
             vector<int> out;
             vector<bool> exported(graph.nodes.size(), false);
@@ -211,35 +309,62 @@ void Optimizer::DAGOpt()
                     bool ok = true;
                     for(vector<int>::iterator it = p->fathers.begin(); it != p->fathers.end(); it++)
                         ok &= exported[*it];
-                    if(ok)
+                    if(ok && exported[p-graph.nodes.begin()]==false)
                     {
                         out.push_back(p-graph.nodes.begin());
                         exported[p-graph.nodes.begin()] = true;
                     }
+                    if(out.size() == graph.nodes.size())
+                        break;
+                    #ifdef OPTDEBUG
+                    //for(vector<bool>::iterator it = exported.begin(); it != exported.end(); it++)
+                    //    cout<<*it<<' ';
+                    //cout<<out.size()<<' '<<graph.nodes.size()<<endl;
+                    #endif // OPTDEBUG
                 }
             }
             // 根据上面的顺序进行代码导出
             for(vector<int>::reverse_iterator p = out.rbegin(); p != out.rend(); p++)
             {
                 bool has = false;
+                vector<TableItem*> toErase;
                 for(vector<TableItem*>::iterator it = graph.indexRecord[*p].begin(); it != graph.indexRecord[*p].end(); it++)
                 {
                     if(graph.nodes[*p].isLeaf)// 对于叶子节点，作赋值操作
                     {
+                        if((IsTemp(*it) && (useCount[*it] == 2)) || ((*it)->type() == CONST_CHAR || (*it)->type() == CONST_INT))
+                            continue;
                         result.push_back(midInstr(GIV, *it, graph.nodes[*p].val));
                     }
                     else if(graph.indexRecord[*p].size() == 1)
                     {
-                        result.push_back(midInstr(graph.nodes[*p].op,
+                        result.push_back(midInstr(graph.nodes[*p].op, *it,
                         graph.GetItemByIndex(graph.nodes[*p].leftChild),
                         graph.GetItemByIndex(graph.nodes[*p].rightChild)));
                     }
                     else
                     {
-                        
+                        if(IsTemp(*it) && useCount[*it] == 2 && (it+1 != graph.indexRecord[*p].end() || has))
+                        {
+                            toErase.push_back(*it);
+                            continue;
+                        }
+                        has = true;
+                        result.push_back(midInstr(graph.nodes[*p].op, *it,
+                        graph.GetItemByIndex(graph.nodes[*p].leftChild),
+                        graph.GetItemByIndex(graph.nodes[*p].rightChild)));
                     }
                 }
+                // 删除节点的冗余
+                for(vector<TableItem*>::iterator it = toErase.begin(); it != toErase.end(); it++)
+                {
+                    graph.indexRecord[*p].erase(find(graph.indexRecord[*p].begin(), graph.indexRecord[*p].end(), *it));
+                }
             }
+
+            result.push_back(*it);
+            block.clear();
         }
     }
+    mc.code = result;
 }

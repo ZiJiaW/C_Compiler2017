@@ -49,8 +49,8 @@ Label_t9:
 lw $t0, 80($fp)
 lw $t1, 76($fp)
 sub $t2, $t0, $t1
-sw $t0, 16($fp)
-sw $t1, 20($fp)
+sw $t0, 80($fp)
+sw $t1, 76($fp)
 sw $t2, 24($fp)
 bltz $t2, Label_t10
 lw $t0, 80($fp)
@@ -58,11 +58,11 @@ lw $t1, 76($fp)
 sub $t2, $t0, $t1
 subi $sp, $sp, 4
 sw $t2, 0($sp)
-lw $t3, 76($fp)
+move $t3, $t1
 subi $sp, $sp, 4
 sw $t3, 0($sp)
-sw $t0, 28($fp)
-sw $t1, 32($fp)
+sw $t0, 80($fp)
+sw $t1, 76($fp)
 sw $t2, 36($fp)
 sw $t3, 40($fp)
 jal gcd
@@ -83,8 +83,8 @@ sub $t3, $t1, $t2
 subi $sp, $sp, 4
 sw $t3, 0($sp)
 sw $t0, 48($fp)
-sw $t1, 52($fp)
-sw $t2, 56($fp)
+sw $t1, 76($fp)
+sw $t2, 80($fp)
 sw $t3, 60($fp)
 jal gcd
 sw $v0, 64($fp)
@@ -106,8 +106,8 @@ move $fp, $sp
 lw $t0, 40($fp)
 lw $t1, 36($fp)
 sub $t2, $t0, $t1
-sw $t0, 0($fp)
-sw $t1, 4($fp)
+sw $t0, 40($fp)
+sw $t1, 36($fp)
 sw $t2, 8($fp)
 blez $t2, Label_t25
 li $v0, 1
@@ -121,8 +121,8 @@ Label_t30:
 lw $t0, 40($fp)
 lw $t1, 36($fp)
 sub $t2, $t0, $t1
-sw $t0, 12($fp)
-sw $t1, 16($fp)
+sw $t0, 40($fp)
+sw $t1, 36($fp)
 sw $t2, 20($fp)
 bgtz $t2, Label_t31
 li $t0, 1
@@ -140,18 +140,16 @@ lw $fp, 28($sp)
 addi $sp, $sp, 44
 jr $ra
 bubblesort:
-subi $sp, $sp, 124
-sw $ra, 120($sp)
-sw $fp, 116($sp)
+subi $sp, $sp, 128
+sw $ra, 124($sp)
+sw $fp, 120($sp)
 move $fp, $sp
-sw $s0, 112($fp)
-sw $s1, 108($fp)
-sw $s2, 104($fp)
-lw $t0, 124($fp)
-subi $t1, $t0, 1
-move $s0, $t1
-sw $t0, 12($fp)
-sw $t1, 16($fp)
+sw $s0, 116($fp)
+sw $s1, 112($fp)
+sw $s2, 108($fp)
+lw $t0, 128($fp)
+subi $s0, $t0, 1
+sw $t0, 128($fp)
 Label_t41:
 li $s1, 0
 Label_t44:
@@ -159,73 +157,63 @@ move $t0, $s1
 sll $t0, $t0, 2
 add $t0, $t0, $gp
 lw $t1, 0($t0)
-move $t2, $s1
-addi $t3, $t2, 1
-sll $t3, $t3, 2
-add $t3, $t3, $gp
-lw $t4, 0($t3)
-sub $t5, $t1, $t4
+addi $t2, $s1, 1
+sll $t2, $t2, 2
+add $t2, $t2, $gp
+lw $t3, 0($t2)
+sub $t4, $t1, $t3
 sw $t0, 20($fp)
 sw $t1, 24($fp)
-sw $t2, 28($fp)
-sw $t3, 32($fp)
-sw $t4, 36($fp)
-sw $t5, 40($fp)
-blez $t5, Label_t46
+sw $t2, 32($fp)
+sw $t3, 36($fp)
+sw $t4, 40($fp)
+blez $t4, Label_t46
 move $t0, $s1
 sll $t0, $t0, 2
 add $t0, $t0, $gp
 lw $t1, 0($t0)
-move $s2, $t1
 move $t2, $s1
-move $t3, $s1
-addi $t4, $t3, 1
-sll $t4, $t4, 2
-add $t4, $t4, $gp
-lw $t5, 0($t4)
+addi $t3, $s1, 1
+move $s2, $t1
+sll $t3, $t3, 2
+add $t3, $t3, $gp
+lw $t4, 0($t3)
 sll $t2, $t2, 2
 add $t2, $t2, $gp
-sw $t5, 0($t2)
-move $t6, $s1
-addi $t7, $t6, 1
-move $t8, $s2
-sll $t7, $t7, 2
-add $t7, $t7, $gp
-sw $t8, 0($t7)
+sw $t4, 0($t2)
+move $t5, $s2
+addi $t6, $s1, 1
+sll $t6, $t6, 2
+add $t6, $t6, $gp
+sw $t5, 0($t6)
 sw $t0, 44($fp)
 sw $t1, 48($fp)
 sw $t2, 52($fp)
-sw $t3, 56($fp)
-sw $t4, 60($fp)
-sw $t5, 64($fp)
-sw $t6, 68($fp)
-sw $t7, 72($fp)
-sw $t8, 76($fp)
+sw $t3, 60($fp)
+sw $t4, 64($fp)
+sw $t5, 76($fp)
+sw $t6, 72($fp)
 j Label_t65
 Label_t46:
 Label_t65:
-addi $s1, $s1, 1
 move $t0, $s1
-move $t1, $s0
-subi $t2, $t1, 1
-sub $t3, $t0, $t2
-sw $t0, 80($fp)
-sw $t1, 84($fp)
-sw $t2, 88($fp)
-sw $t3, 92($fp)
-blez $t3, Label_t44
+subi $t1, $s0, 1
+addi $s1, $t0, 1
+sub $t2, $s1, $t1
+sw $t0, 104($fp)
+sw $t1, 88($fp)
+sw $t2, 92($fp)
+blez $t2, Label_t44
 subi $s0, $s0, 1
-move $t0, $s0
-subi $t1, $t0, 1
-sw $t0, 96($fp)
-sw $t1, 100($fp)
-bgez $t1, Label_t41
-lw $ra, 120($sp)
-lw $fp, 116($sp)
-lw $s0, 112($sp)
-lw $s1, 108($sp)
-lw $s2, 104($sp)
-addi $sp, $sp, 128
+subi $t0, $s0, 1
+sw $t0, 100($fp)
+bgez $t0, Label_t41
+lw $ra, 124($sp)
+lw $fp, 120($sp)
+lw $s0, 116($sp)
+lw $s1, 112($sp)
+lw $s2, 108($sp)
+addi $sp, $sp, 132
 jr $ra
 fib:
 subi $sp, $sp, 44
@@ -260,7 +248,7 @@ lw $t0, 44($fp)
 subi $t1, $t0, 1
 subi $sp, $sp, 4
 sw $t1, 0($sp)
-sw $t0, 8($fp)
+sw $t0, 44($fp)
 sw $t1, 12($fp)
 jal fib
 sw $v0, 16($fp)
@@ -268,7 +256,7 @@ lw $t0, 44($fp)
 subi $t1, $t0, 2
 subi $sp, $sp, 4
 sw $t1, 0($sp)
-sw $t0, 20($fp)
+sw $t0, 44($fp)
 sw $t1, 24($fp)
 jal fib
 sw $v0, 28($fp)
@@ -299,7 +287,6 @@ sw $s6, 268($fp)
 sw $s7, 264($fp)
 li $s1, 1
 li $s2, 1
-li $s1, 1
 Label_t96:
 move $t0, $s1
 move $t1, $s1
@@ -312,20 +299,18 @@ sll $t2, $t2, 2
 add $t2, $t2, $fp
 sw $t3, 32($t2)
 addi $s1, $s1, 1
-move $t4, $s1
-subi $t5, $t4, 8
+subi $t4, $s1, 8
 sw $t0, 112($fp)
 sw $t1, 116($fp)
 sw $t2, 120($fp)
 sw $t3, 124($fp)
-sw $t4, 128($fp)
-sw $t5, 132($fp)
-blez $t5, Label_t96
+sw $t4, 132($fp)
+blez $t4, Label_t96
 li $s1, 1
 Label_t106:
-li $s5, 3
 li $s0, 2
-move $t0, $s0
+li $t0, 2
+li $s5, 3
 li $t1, 0
 sw $t0, 136($fp)
 beq $t0, $t1, Label_t110
@@ -339,60 +324,52 @@ sw $t0, 140($fp)
 jal compare
 sw $v0, 144($fp)
 lw $t0, 144($fp)
-move $t1, $t0
-move $t2, $s0
-mulo $t3, $t1, $t2
-move $t4, $t3
-move $t5, $s5
-sll $t5, $t5, 2
-add $t5, $t5, $fp
-lw $t6, 72($t5)
-move $s6, $t6
+move $t1, $s5
+lw $t2, 144($fp)
+mulo $t3, $t2, $s0
+sll $t1, $t1, 2
+add $t1, $t1, $fp
+lw $t4, 72($t1)
 li $s2, 1
+move $s6, $t4
 sw $t0, 16($fp)
-sw $t1, 148($fp)
-sw $t2, 152($fp)
-sw $t3, 156($fp)
-sw $t4, 0($fp)
-sw $t5, 160($fp)
-sw $t6, 164($fp)
+sw $t1, 160($fp)
+sw $t2, 144($fp)
+sw $t3, 0($fp)
+sw $t4, 164($fp)
 Label_t122:
-move $t0, $s6
-lw $t1, 16($fp)
-add $t2, $t0, $t1
-sll $t2, $t2, 2
-add $t2, $t2, $fp
-lw $t3, 32($t2)
-move $s4, $t3
-move $t4, $s4
-sll $t4, $t4, 2
-add $t4, $t4, $fp
-lw $t5, 72($t4)
-move $s7, $t5
+lw $t0, 16($fp)
+add $t1, $s6, $t0
+sll $t1, $t1, 2
+add $t1, $t1, $fp
+lw $t2, 32($t1)
+move $s4, $t2
+move $t3, $t2
+sll $t3, $t3, 2
+add $t3, $t3, $fp
+lw $t4, 72($t3)
+move $t5, $s4
 move $t6, $s6
-move $t7, $s4
+move $s7, $t4
 sll $t6, $t6, 2
 add $t6, $t6, $fp
-sw $t7, 32($t6)
+sw $t5, 32($t6)
+move $t7, $s6
 move $t8, $s4
-move $t9, $s6
 sll $t8, $t8, 2
 add $t8, $t8, $fp
-sw $t9, 72($t8)
-sw $t0, 168($fp)
-move $t0, $s7
-move $s6, $t0
+sw $t7, 72($t8)
 li $s3, 1
-sw $t0, 208($fp)
-sw $t1, 172($fp)
-sw $t2, 176($fp)
-sw $t3, 180($fp)
-sw $t4, 184($fp)
-sw $t5, 188($fp)
+move $s6, $s7
+sw $t0, 16($fp)
+sw $t1, 176($fp)
+sw $t2, 180($fp)
+sw $t3, 184($fp)
+sw $t4, 188($fp)
+sw $t5, 196($fp)
 sw $t6, 192($fp)
-sw $t7, 196($fp)
+sw $t7, 204($fp)
 sw $t8, 200($fp)
-sw $t9, 204($fp)
 Label_t136:
 move $t0, $s3
 sll $t0, $t0, 2
@@ -405,13 +382,11 @@ la $a0, t140
 li $v0, 4
 syscall
 addi $s3, $s3, 1
-move $t2, $s3
-subi $t3, $t2, 8
+subi $t2, $s3, 8
 sw $t0, 212($fp)
 sw $t1, 216($fp)
-sw $t2, 220($fp)
-sw $t3, 224($fp)
-blez $t3, Label_t136
+sw $t2, 224($fp)
+blez $t2, Label_t136
 li $s3, 1
 Label_t145:
 move $t0, $s3
@@ -425,30 +400,24 @@ la $a0, t149
 li $v0, 4
 syscall
 addi $s3, $s3, 1
-move $t2, $s3
-subi $t3, $t2, 8
+subi $t2, $s3, 8
 sw $t0, 228($fp)
 sw $t1, 232($fp)
-sw $t2, 236($fp)
-sw $t3, 240($fp)
-blez $t3, Label_t145
+sw $t2, 240($fp)
+blez $t2, Label_t145
 addi $s2, $s2, 1
-move $t0, $s2
-lw $t1, 0($fp)
-sub $t2, $t0, $t1
-sw $t0, 244($fp)
-sw $t1, 248($fp)
-sw $t2, 252($fp)
-blez $t2, Label_t122
+lw $t0, 0($fp)
+sub $t1, $s2, $t0
+sw $t0, 0($fp)
+sw $t1, 252($fp)
+blez $t1, Label_t122
 j Label_t156
 Label_t110:
 Label_t156:
 addi $s1, $s1, 1
-move $t0, $s1
-subi $t1, $t0, 1
-sw $t0, 256($fp)
-sw $t1, 260($fp)
-blez $t1, Label_t106
+subi $t0, $s1, 1
+sw $t0, 260($fp)
+blez $t0, Label_t106
 lw $ra, 300($sp)
 lw $fp, 296($sp)
 lw $s0, 292($sp)
@@ -533,11 +502,9 @@ syscall
 li $v0, 5
 syscall
 move $s2, $v0
-move $t0, $s2
-subi $t1, $t0, 100
-sw $t0, 40($fp)
-sw $t1, 44($fp)
-blez $t1, Label_t182
+subi $t0, $s2, 100
+sw $t0, 44($fp)
+blez $t0, Label_t182
 la $a0, t186
 li $v0, 4
 syscall
@@ -552,21 +519,17 @@ Label_t189:
 li $v0, 5
 syscall
 move $s1, $v0
-move $t0, $s0
-move $t1, $s1
-sll $t0, $t0, 2
-add $t0, $t0, $gp
-sw $t1, 0($t0)
+move $t0, $s1
+move $t1, $s0
+sll $t1, $t1, 2
+add $t1, $t1, $gp
+sw $t0, 0($t1)
 addi $s0, $s0, 1
-move $t2, $s0
-move $t3, $s2
-sub $t4, $t2, $t3
-sw $t0, 48($fp)
-sw $t1, 52($fp)
-sw $t2, 56($fp)
-sw $t3, 60($fp)
-sw $t4, 64($fp)
-bltz $t4, Label_t189
+sub $t2, $s0, $s2
+sw $t0, 52($fp)
+sw $t1, 48($fp)
+sw $t2, 64($fp)
+bltz $t2, Label_t189
 la $a0, t196
 li $v0, 4
 syscall
@@ -583,15 +546,11 @@ move $a0, $t1
 li $v0, 1
 syscall
 addi $s0, $s0, 1
-move $t2, $s0
-move $t3, $s2
-sub $t4, $t2, $t3
+sub $t2, $s0, $s2
 sw $t0, 68($fp)
 sw $t1, 72($fp)
-sw $t2, 76($fp)
-sw $t3, 80($fp)
-sw $t4, 84($fp)
-bltz $t4, Label_t198
+sw $t2, 84($fp)
+bltz $t2, Label_t198
 move $t0, $s2
 subi $sp, $sp, 4
 sw $t0, 0($sp)
@@ -613,15 +572,11 @@ move $a0, $t1
 li $v0, 1
 syscall
 addi $s0, $s0, 1
-move $t2, $s0
-move $t3, $s2
-sub $t4, $t2, $t3
+sub $t2, $s0, $s2
 sw $t0, 92($fp)
 sw $t1, 96($fp)
-sw $t2, 100($fp)
-sw $t3, 104($fp)
-sw $t4, 108($fp)
-bltz $t4, Label_t209
+sw $t2, 108($fp)
+bltz $t2, Label_t209
 lw $ra, 124($sp)
 addi $sp, $sp, 128
 jr $ra

@@ -12,6 +12,7 @@ struct midInstr {
     TableItem* dst;
     TableItem* src1;
     TableItem* src2;
+    midInstr(){}
     midInstr(OpCode a, TableItem* b, TableItem* c = NULL, TableItem* d = NULL):
     op(a), dst(b), src1(c), src2(d){}
 };

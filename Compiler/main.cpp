@@ -1,7 +1,6 @@
-#include <iostream>
-#include <string>
 #include <fstream>
 #include <cstdlib>
+#include "MiddleCode.h"
 #include "ErrorHandler.h"
 #include "Lexer.h"
 #include "Symbol.h"
@@ -9,15 +8,18 @@
 #include "SymbolTable.h"
 #include "Parser.h"
 #include "MIPSTranslator.h"
+#include "Optimizer.h"
 using namespace std;
 string Itos(int n);
 string GetMidString(midInstr mc);
 int main()
 {
-    ofstream lexOut, mdOut, mipsOut;
+    ofstream lexOut, mdOut, mipsOut, optOut, optMips;
     lexOut.open("LexerResult.txt", ios::out);
     mdOut.open("MiddleCode.txt", ios::out);
     mipsOut.open("MIPS.asm", ios::out);
+    optOut.open("Optimized.txt", ios::out);
+    optMips.open("OptedMIPS.asm", ios::out);
     cout << "Please input source code file path:" << endl;
     string fileName;
     cin >> fileName;
@@ -27,7 +29,8 @@ int main()
     SymbolTable rt;
     Parser par(lex, eh, mc, rt);
     par.StartParsing();
-    MIPSTranslator mtr(mc, rt, rt.temp, par.constZero);
+    MIPSTranslator mtr(mc, rt, par.TempTable, par.constZero);
+    Optimizer opt(mc, rt, par.TempTable);
     if(eh.IsSuccessful())
     {
         cout<<"Build Succeeded! Now output the result......"<<endl;
@@ -48,11 +51,31 @@ int main()
         for(vector<string>::iterator it = mtr.codes.begin(); it != mtr.codes.end(); it++)
             mipsOut<<*it<<endl;
         cout<<"MIPS code in file: MIPS.asm!"<<endl;
+
+        /*********test optimizer*********************/
+
+        opt.optimize();
+        for(vector<midInstr>::iterator p = mc.code.begin(); p != mc.code.end(); p++)
+        {
+            if(GetMidString(*p)!="")
+                optOut<<GetMidString(*p)<<endl;
+        }
+        MIPSTranslator optedmtr(mc, rt, par.TempTable, par.constZero);
+        optedmtr.translate();
+        for(vector<string>::iterator it = optedmtr.codes.begin(); it != optedmtr.codes.end(); it++)
+            optMips<<*it<<endl;
+        /********************************************/
+
     }
     else
     {
         eh.PrintError();
     }
+    lexOut.close();
+    mdOut.close();
+    optMips.close();
+    optOut.close();
+    mipsOut.close();
     return 0;
 }
 string Itos(int n)
@@ -69,39 +92,39 @@ string GetMidString(midInstr mc)
         {
 
             return mc.dst->name()+" = "+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+" + "+
-            string(mc.src2->type()==CONST_CHAR?string(1,char(mc.src2->value())):
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
             mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case SUB:
         {
             return mc.dst->name()+" = "+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+" - "+
-            string(mc.src2->type()==CONST_CHAR?string(1,char(mc.src2->value())):
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
             mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case MUL:
         {
             return mc.dst->name()+" = "+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+" * "+
-            string(mc.src2->type()==CONST_CHAR?string(1,char(mc.src2->value())):
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
             mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case DIV:
         {
             return mc.dst->name()+" = "+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+" / "+
-            string(mc.src2->type()==CONST_CHAR?string(1,char(mc.src2->value())):
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
             mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case GIV:
         {
             return mc.dst->name()+" = "+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case STR:
@@ -124,7 +147,7 @@ string GetMidString(midInstr mc)
         }
         case PUSH:
         {
-            return string("push ")+string(mc.dst->type()==CONST_CHAR?string(1,char(mc.dst->value())):
+            return string("push ")+string(mc.dst->type()==CONST_CHAR?"\'"+string(1,char(mc.dst->value()))+"\'":
             mc.dst->type()==CONST_INT?Itos(mc.dst->value()):mc.dst->name());
         }
         case CALL:
@@ -138,13 +161,13 @@ string GetMidString(midInstr mc)
         case NEG:
         {
             return mc.dst->name()+" = -"+
-            string(mc.src1->type()==CONST_CHAR?string(1,char(mc.src1->value())):
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
             mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case RET:
         {
             if(mc.dst!=NULL)
-                return string("ret ")+string(mc.dst->type()==CONST_CHAR?string(1,char(mc.dst->value())):
+                return string("ret ")+string(mc.dst->type()==CONST_CHAR?"\'"+string(1,char(mc.dst->value()))+"\'":
                 mc.dst->type()==CONST_INT?Itos(mc.dst->value()):mc.dst->name());
             else
                 return "ret";
@@ -155,35 +178,57 @@ string GetMidString(midInstr mc)
         }
         case GIV_ARR:
         {
-            return mc.dst->name()+"["+mc.src1->name()+"] = "+mc.src2->name();
+            return mc.dst->name()+"["+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+"] = "+
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
+            mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case ARR_GIV:
         {
-            return mc.dst->name()+" = "+mc.src1->name()+"["+mc.src2->name()+"]";
+            return mc.dst->name()+" = "+mc.src1->name()+"["+
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
+            mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name())+"]";
         }
         case BLEZ:
         {
-            return string("blez Label_")+mc.dst->name()+", "+mc.src1->name();
+            return string("blez Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case BEQ:
         {
-            return string("beq Label_")+mc.dst->name()+", "+mc.src1->name()+", "+mc.src2->name();
+            return string("beq Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+", "+
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
+            mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case BGTZ:
         {
-            return string("bgtz Label_")+mc.dst->name()+", "+mc.src1->name();
+            return string("bgtz Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case BNE:
         {
-            return string("bne Label_")+mc.dst->name()+", "+mc.src1->name()+", "+mc.src2->name();
+            return string("bne Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name())+", "+
+            string(mc.src2->type()==CONST_CHAR?"\'"+string(1,char(mc.src2->value()))+"\'":
+            mc.src2->type()==CONST_INT?Itos(mc.src2->value()):mc.src2->name());
         }
         case BGEZ:
         {
-            return string("bgez Label_")+mc.dst->name()+", "+mc.src1->name();
+            return string("bgez Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case BLTZ:
         {
-            return string("bltz Label_")+mc.dst->name()+", "+mc.src1->name();
+            return string("bltz Label_")+mc.dst->name()+", "+
+            string(mc.src1->type()==CONST_CHAR?"\'"+string(1,char(mc.src1->value()))+"\'":
+            mc.src1->type()==CONST_INT?Itos(mc.src1->value()):mc.src1->name());
         }
         case WRITE:
         {
