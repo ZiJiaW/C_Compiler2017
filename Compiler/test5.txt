@@ -1,0 +1,49 @@
+void main()
+{
+    int a,b,c;
+    int i,j,k;
+    for(i=0;i<0;i=i+1)
+    {
+        for(j=0;j>0;j=j-1)
+        {
+            if(i>j)
+            {
+                printf("j smaller than i");
+            }
+            else if(i==j)
+            {
+                printf("i equal with j");
+            }
+            else
+            {
+                printf("i smaller than j");
+            }
+        }
+    }
+    {
+        scanf(a);
+        switch(a)
+        {
+            case 0:{
+                {{{{{;;}}}}}
+            }
+            case 1:
+            {
+                a=1;
+                if(a==1)
+                {
+                    printf("of course");
+                }
+                else
+                {
+                    printf("kidding me");
+                }
+            }
+            default:
+            {
+                printf(a);
+            }
+        }
+        printf("end switch test");
+    }
+}

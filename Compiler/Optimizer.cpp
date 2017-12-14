@@ -18,7 +18,7 @@ bool Optimizer::IsConst(TableItem* t)
 bool Optimizer::AbleOpt(midInstr md)
 {
     return md.op == ADD || md.op == SUB || md.op == DIV || md.op == MUL
-        || md.op == GIV || md.op == NEG ;
+        || md.op == GIV || md.op == NEG || md.op == GIV_ARR ||md.op == ARR_GIV;
 }
 void Optimizer::PeepHoleOpt()
 {

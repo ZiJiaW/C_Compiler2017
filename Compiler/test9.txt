@@ -1,0 +1,74 @@
+const int _max_=9, _min_=0;
+const char plus='+',sub='-',mul='*',div='/';
+char _B1,_B2,B[10];
+int day,month,year,sum,count; 
+
+void read(){
+	printf("now count"); 
+	scanf(year,month,day);
+}
+
+void call_count(){
+	if (count>=5){
+		printf(count);
+		return;                
+	}
+	else{
+		count=count+1;
+		call_count();
+		return;
+	}
+}
+
+char findmax( int k, char d){
+	int i,j,temp[2];
+	char t;
+	k=1;
+	printf(k);  
+	temp[0]=(2*3-30/5)+0;       
+	temp[1]=4*temp[0]+5-2*2;    
+	i=1+k*(5+temp[0])-8/(temp[1]+1); 
+	printf(i);  
+
+	for (j=i-2;j!=10;j=j+1){
+		for(k=j+1;k<10;k=k+1){
+			if(B[k]>B[j]){           
+				t=B[j];
+				B[j]=B[k];
+				B[k]=t;
+			}	
+		}
+	}  
+	return (B[2-2]);    
+}
+
+void main() 
+{ 
+	const int _a1=10;
+	int a1,_a2;
+	char sum; 
+	read();
+	count=1;
+	B[_min_]='0';
+	B[1]='1';
+	B[2]='2';
+	B[3]='3';
+	B[4]='4';
+	B[5]='5';
+	B[6]='6';
+	B[7]='7';
+	B[8]='8';
+	B[_max_]='9';
+	printf(B[3]-B[_min_]);  
+	switch(month)
+	{
+		case 1:sum=B[1];
+		case 2:sum=B[2];
+		case 3:sum=B[3];
+		default:printf("data error"); 
+	}
+	printf(month);  
+	_B1=findmax(year,sum);
+	call_count();
+	printf("sum is :",_B1-'0'+6);    
+} 

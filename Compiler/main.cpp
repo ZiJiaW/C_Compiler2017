@@ -22,7 +22,8 @@ int main()
     optMips.open("OptedMIPS.asm", ios::out);
     cout << "Please input source code file path:" << endl;
     string fileName;
-    cin >> fileName;
+    int toOpt = 0;
+    cin >> fileName >> toOpt;
     ErrorHandler eh;
     Lexer lex(fileName, eh);
     MiddleCode mc;
@@ -53,17 +54,22 @@ int main()
         cout<<"MIPS code in file: MIPS.asm!"<<endl;
 
         /*********test optimizer*********************/
-
-        opt.optimize();
-        for(vector<midInstr>::iterator p = mc.code.begin(); p != mc.code.end(); p++)
+        if(toOpt)
         {
-            if(GetMidString(*p)!="")
-                optOut<<GetMidString(*p)<<endl;
+            cout<<"Now do optimizing......"<<endl;
+            opt.optimize();
+            cout<<"Output optimized middle code in file: optimized.txt!"<<endl;
+            for(vector<midInstr>::iterator p = mc.code.begin(); p != mc.code.end(); p++)
+            {
+                if(GetMidString(*p)!="")
+                    optOut<<GetMidString(*p)<<endl;
+            }
+            MIPSTranslator optedmtr(mc, rt, par.TempTable, par.constZero);
+            optedmtr.translate();
+            for(vector<string>::iterator it = optedmtr.codes.begin(); it != optedmtr.codes.end(); it++)
+                optMips<<*it<<endl;
+            cout<<"Output optimized code in file: OptedMIPS.asm!"<<endl;
         }
-        MIPSTranslator optedmtr(mc, rt, par.TempTable, par.constZero);
-        optedmtr.translate();
-        for(vector<string>::iterator it = optedmtr.codes.begin(); it != optedmtr.codes.end(); it++)
-            optMips<<*it<<endl;
         /********************************************/
 
     }

@@ -1,304 +1,182 @@
-int gcd()
-para int m
-para int n
-t1 = m
-bne Label_t0, t1, 0
-t3 = n
-ret t3
-end_func gcd
-JMP Label_t4
-Label_t0:
-Label_t4:
-t6 = n
-bne Label_t5, t6, 0
-t8 = m
-ret t8
-end_func gcd
-JMP Label_t9
-Label_t5:
-Label_t9:
-t11 = m
-t12 = n
-t13 = t11 - t12
-bltz Label_t10, t13
-t14 = m
-t15 = n
-t16 = t14 - t15
-push t16
-t17 = n
-push t17
-call gcd
-t18 = ret
-ret t18
-end_func gcd
-JMP Label_t19
-Label_t10:
-t20 = m
-push t20
-t21 = n
-t22 = m
-t23 = t21 - t22
-push t23
-call gcd
-t24 = ret
-ret t24
-end_func gcd
-Label_t19:
-end_func gcd
-int compare()
-para int a
-para int b
-t26 = a
-t27 = b
-t28 = t26 - t27
-blez Label_t25, t28
-ret 1
-end_func compare
-JMP Label_t30
-Label_t25:
-Label_t30:
-t32 = a
-t33 = b
-t34 = t32 - t33
-bgtz Label_t31, t34
-t36 = -1
-ret t36
-end_func compare
-JMP Label_t37
-Label_t31:
-Label_t37:
-end_func compare
-void bubblesort()
-para int n
-t38 = n
-t40 = t38 - 1
-i = t40
-Label_t41:
-k = 0
-Label_t44:
-t47 = k
-t48 = a[t47]
-t49 = k
-t51 = t49 + 1
-t52 = a[t51]
-t53 = t48 - t52
-blez Label_t46, t53
-t54 = k
-t55 = a[t54]
-tmp = t55
-t56 = k
-t57 = k
-t59 = t57 + 1
-t60 = a[t59]
-a[t56] = t60
-t61 = k
-t63 = t61 + 1
-t64 = tmp
-a[t63] = t64
-JMP Label_t65
-Label_t46:
-Label_t65:
-k = k + 1
-t66 = k
-t67 = i
-t69 = t67 - 1
-t70 = t66 - t69
-blez Label_t44, t70
-i = i - 1
-t71 = i
-t73 = t71 - 1
-bgez Label_t41, t73
-end_func bubblesort
-int fib()
-para int n
-t75 = n
-bne Label_t74, t75, 0
+void recor_printU()
+para int N
+t0 = 'c'
+t1 = 'c'
+t2 = t0 + t1
+l = t2
+t5 = 2 * 3
+t9 = 3 * 1
+t12 = 3 + 4
+t14 = t12 + 5
+t18 = 7 * 8
+t20 = t18 * 9
+t22 = t20 - 23
+t23 = 6 * t22
+t24 = t14 + t23
+t26 = t24 * 34
+t27 = t9 + t26
+t29 = t27 - 21
+t30 = 4 * t29
+t32 = t30 * 14
+t33 = t5 - t32
+s = t33
+t36 = 3 * -4
+t37 = -t36
+t40 = 2 / 1
+t41 = t37 - t40
+t = t41
+t44 = 2 / -1
+t45 = -t44
+t48 = 6 / -2
+t49 = t45 - t48
+t1 = t49
+i = 0
+Label_t51:
+t53 = i
+t54 = i
+list[t53] = t54
+t55 = i
+t56 = list[t55]
+t = t56
+write t57
+t58 = i
+t59 = list[t58]
+write t59
+i = i + 1
+t60 = i
+t61 = N
+bne Label_t51, t60, t61
+end_func recor_printU
+void recor_printD()
+para int N
+t63 = N
+beq Label_t62, t63, 0
+write t65
+write N
+t66 = N
+t68 = t66 - 1
+push t68
+call recor_printD
+JMP Label_t69
+Label_t62:
+Label_t69:
+end_func recor_printD
+int Isright()
+para int N
+para char type
+t71 = N
+t73 = t71 - 100
+bltz Label_t70, t73
+write t74
 ret 0
-end_func fib
-JMP Label_t78
-Label_t74:
-Label_t78:
-t80 = n
-bne Label_t79, t80, 1
+end_func Isright
+JMP Label_t76
+Label_t70:
+Label_t76:
+t78 = N
+t80 = t78 - 0
+blez Label_t77, t80
+t82 = type
+bne Label_t81, t82, 'u'
 ret 1
-end_func fib
-JMP Label_t83
-Label_t79:
-Label_t83:
-t84 = n
-t86 = t84 - 1
-push t86
-call fib
-t87 = ret
-t88 = n
-t90 = t88 - 2
-push t90
-call fib
-t91 = ret
-t92 = t87 + t91
-ret t92
-end_func fib
-end_func fib
-void complexfor()
-i = 1
-j = 1
-i = 1
+end_func Isright
+JMP Label_t85
+Label_t81:
+Label_t85:
+t87 = type
+bne Label_t86, t87, 'd'
+ret 2
+end_func Isright
+JMP Label_t90
+Label_t86:
+Label_t90:
+JMP Label_t91
+Label_t77:
+Label_t91:
+ret 0
+end_func Isright
+end_func Isright
+void sumandmul()
+para int N
+sum = 0
+mul = 1
+i = 0
 Label_t96:
-t98 = i
+t98 = sum
 t99 = i
-ss[t98] = t99
-t100 = i
+t100 = t98 + t99
+sum = t100
+i = i + 1
 t101 = i
-pp[t100] = t101
+t102 = N
+bne Label_t96, t101, t102
+write sum
+write t103
+i = 0
+Label_t105:
+t108 = i
+t109 = list[t108]
+beq Label_t107, t109, 0
+t111 = mul
+t112 = i
+t113 = list[t112]
+t114 = t111 * t113
+mul = t114
+JMP Label_t115
+Label_t107:
+Label_t115:
 i = i + 1
-t102 = i
-t104 = t102 - 8
-blez Label_t96, t104
-i = 1
-Label_t106:
-p = 3
-q = 2
-t111 = q
-beq Label_t110, t111, 0
-t113 = q
-push t113
-push 0
-call compare
-t115 = ret
-move = t115
-t116 = move
-t117 = q
-t118 = t116 * t117
-end = t118
-t119 = p
-t120 = ss[t119]
-po1 = t120
-j = 1
-Label_t122:
-t124 = po1
-t125 = move
-t126 = t124 + t125
-t127 = pp[t126]
-st2 = t127
-t128 = st2
-t129 = ss[t128]
-po2 = t129
-t130 = po1
-t131 = st2
-pp[t130] = t131
-t132 = st2
-t133 = po1
-ss[t132] = t133
-t134 = po2
-po1 = t134
-k = 1
-Label_t136:
-t138 = k
-t139 = pp[t138]
-write t139
-write t140
-k = k + 1
-t141 = k
-t143 = t141 - 8
-blez Label_t136, t143
-k = 1
-Label_t145:
-t147 = k
-t148 = ss[t147]
-write t148
-write t149
-k = k + 1
-t150 = k
-t152 = t150 - 8
-blez Label_t145, t152
-j = j + 1
-t153 = j
-t154 = end
-t155 = t153 - t154
-blez Label_t122, t155
-JMP Label_t156
-Label_t110:
-Label_t156:
-i = i + 1
-t157 = i
-t159 = t157 - 1
-blez Label_t106, t159
-end_func complexfor
+t116 = i
+t117 = N
+bne Label_t105, t116, t117
+write mul
+end_func sumandmul
 void main()
-write t160
-push 319
-push 377
-call gcd
-t163 = ret
-write t163
-write t164
-write t165
-push 98
-push 63
-call gcd
-t168 = ret
-write t168
-write t169
-push 1280
-push 1250
-call gcd
-t173 = ret
-t174 = 10 * t173
-t176 = t174 / 20
-t178 = t176 * 2
-write t178
-call complexfor
-write t179
-push 20
-call fib
-t181 = ret
-write t181
-read n
-t183 = n
-t185 = t183 - 100
-blez Label_t182, t185
-write t186
-ret
-end_func main
-JMP Label_t187
-Label_t182:
-Label_t187:
-i = 0
-Label_t189:
-read m
-t191 = i
-t192 = m
-a[t191] = t192
-i = i + 1
-t193 = i
-t194 = n
-t195 = t193 - t194
-bltz Label_t189, t195
-write t196
-i = 0
-Label_t198:
-write t200
-t201 = i
-t202 = a[t201]
-write t202
-i = i + 1
-t203 = i
-t204 = n
-t205 = t203 - t204
-bltz Label_t198, t205
-t206 = n
-push t206
-call bubblesort
-write t207
-i = 0
-Label_t209:
-write t211
-t212 = i
-t213 = a[t212]
-write t213
-i = i + 1
-t214 = i
-t215 = n
-t216 = t214 - t215
-bltz Label_t209, t216
+write t118
+read N
+read type
+t119 = N
+push t119
+t120 = type
+push t120
+call Isright
+t121 = ret
+t = t121
+t123 = t
+bne Label_t125, 1, t123
+t126 = N
+push t126
+call recor_printU
+JMP Label_t122
+Label_t125:
+bne Label_t128, 2, t123
+l = 0
+t130 = N
+push t130
+call recor_printD
+JMP Label_t122
+Label_t128:
+bne Label_t132, 0, t123
+write t133
+JMP Label_t122
+Label_t132:
+write t134
+Label_t122:
+t136 = t
+beq Label_t135, t136, 0
+write t138
+read t
+t140 = t
+bne Label_t139, t140, 1
+t142 = N
+push t142
+call sumandmul
+JMP Label_t143
+Label_t139:
+write t144
+Label_t143:
+JMP Label_t145
+Label_t135:
+Label_t145:
+write t146
 end_prog main

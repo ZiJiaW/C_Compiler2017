@@ -1,0 +1,30 @@
+int dis(int a,int eva)
+{
+    return ((a-eva)*(a-eva));
+}
+void main()
+{
+    int total,n;
+    int average,fangcha,pingfanghe;
+    int num;
+    int i;
+    int save_n[20];
+    scanf(n);
+    total = 0;
+    pingfanghe = 0;
+    for(i=0;i<n;i=i+1)
+    {
+        scanf(num);
+        save_n[i] = num;
+        total = total + num;
+    }
+    average = total/n;
+    for(i=0;i<n;i=i+1)
+    {
+        pingfanghe = pingfanghe + dis(save_n[i],average);
+    }
+    pingfanghe = pingfanghe/n;
+    printf(" total is: ",total);
+    printf(" average is: ",average);
+    printf(" pingfanghe is: ",pingfanghe);
+}

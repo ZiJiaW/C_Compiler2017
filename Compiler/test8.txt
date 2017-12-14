@@ -1,0 +1,99 @@
+const int a = 10;
+const int b = 9;
+const char chr_1 = '*';
+const char chr_2 = '/';
+const int len = 10;
+int c,d1[10];
+char s_1[10],s_2[10];
+int e,f;
+char chr_3,chr_4;
+void init()
+{
+    int a,b,c,d,e,f;
+    b = 0;
+    c = 10;
+    for(a=b;a<c;a=a+2)
+    {
+        d1[a] = a;
+    }
+    chr_3 = 'a';
+    chr_4 = 'c';
+    printf(a);
+    printf(b);
+    printf(c);
+    printf(" ",chr_3);
+    printf(" ",chr_4);
+}
+
+void main()
+{
+    const int a = 1;
+    const int b = 2;
+    const char chr_1 = '+',chr_2='-';
+    int c,d;
+    char c1,c2;
+    int dig;
+    printf(a);
+    printf(b);
+    printf(chr_1);
+    printf(chr_2);
+    init();
+    for(c=0;c<len;c=c+1)
+    {
+        printf(d1[c]);
+    }
+    for(d=0;d<c;d=d+1)
+    {
+        if(d<((d+c)/2-3))
+        {
+            printf("this: ", chr_3);
+            s_1[d] = chr_3;
+        }
+        else if(d==((d+c)/2-3))
+        {
+            s_1[d] = '_';
+        }
+        else
+        {
+            s_1[d] = chr_4;
+        }
+    }
+    for(d=0;d<c;d=d+1)
+        printf(s_1[d]);
+    d = 0;
+    scanf(dig);
+    switch(dig)
+    {
+        case 1:{
+            scanf(c);
+            dig = c;
+            printf(dig);
+        }
+        case 2:{
+            scanf(c,d);
+            dig = 10*c+d;
+            printf(dig);
+        }
+        case 3:{
+            scanf(c,d,e);
+            dig = 100*c+10*d+e;
+            printf(dig);
+        }
+        case 4:{
+            scanf(c,d,e,f);
+            dig = 1000*c+100*d+10*e+f;
+            printf(dig);
+        }
+        default:
+        {
+            dig = dig - 6;
+            if(dig<=0)
+            {
+                printf("big number",dig);
+            }
+            else
+                printf("a very big number",dig);
+        }
+    }
+
+}

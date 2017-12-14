@@ -412,8 +412,8 @@ void MIPSTranslator::translate()
                     }
                     if(RegMap[t.dst]->rg == NONE)
                         TempAlloc(t.dst);
-                    codes.push_back(string("mulo " + GetRegName(RegMap[t.dst]->rg) +
-                            ", " + GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                    codes.push_back(string("mulo ") + GetRegName(RegMap[t.dst]->rg) + ", " +
+                                    GetRegName(RegMap[tsrc]->rg) + ", " + itos(val));
                 }
                 else
                 {
@@ -454,8 +454,8 @@ void MIPSTranslator::translate()
                     }
                     if(RegMap[t.dst]->rg == NONE)
                         TempAlloc(t.dst);
-                    codes.push_back(string("div " + GetRegName(RegMap[t.dst]->rg) + ", " +
-                                GetRegName(RegMap[tsrc]->rg) + ", " + itos(val)));
+                    codes.push_back(string("div ") + GetRegName(RegMap[t.dst]->rg) + ", " +
+                                GetRegName(RegMap[tsrc]->rg) + ", " + itos(val));
                 }
                 else// t = 2 / a or b / a
                 {
@@ -624,21 +624,21 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src1);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src1]->rg)+", "+address(t.src1));
                 }
-                codes.push_back(string("sll ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", 2");
+                codes.push_back(string("sll $at, ") + GetRegName(RegMap[t.src1]->rg) + ", 2");
                 #ifdef mipsDEBUG
                 cout<<"Global array:"<<t.dst->name()<<RegMap[t.dst]->isGlobal<<endl;
                 #endif // mipsDEBUG
                 if(RegMap[t.dst]->isGlobal)
                 {
-                    codes.push_back(string("add ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $gp");
+                    codes.push_back(string("add $at, $at, $gp"));// + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $gp");
                     codes.push_back(string("sw ") + GetRegName(RegMap[t.src2]->rg) + ", " +
-                    itos(RegMap[t.dst]->offsetByGp)+"("+GetRegName(RegMap[t.src1]->rg)+")");
+                    itos(RegMap[t.dst]->offsetByGp)+"($at)");//+GetRegName(RegMap[t.src1]->rg)+")");
                 }
                 else
                 {
-                    codes.push_back(string("add ") + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $fp");
+                    codes.push_back(string("add $at, $at, $fp"));// + GetRegName(RegMap[t.src1]->rg) + ", " + GetRegName(RegMap[t.src1]->rg) + ", $fp");
                     codes.push_back(string("sw ") + GetRegName(RegMap[t.src2]->rg) + ", " +
-                    itos(RegMap[t.dst]->offsetByFp)+"("+GetRegName(RegMap[t.src1]->rg)+")");
+                    itos(RegMap[t.dst]->offsetByFp)+"($at)");//+GetRegName(RegMap[t.src1]->rg)+")");
                 }
                 break;
             }
@@ -655,18 +655,18 @@ void MIPSTranslator::translate()
                     TempAlloc(t.src2);
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.src2]->rg)+", "+address(t.src2));
                 }
-                codes.push_back(string("sll ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", 2");
+                codes.push_back(string("sll $at, ") + GetRegName(RegMap[t.src2]->rg) + ", 2");
                 if(RegMap[t.src1]->isGlobal)
                 {
-                    codes.push_back(string("add ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $gp");
+                    codes.push_back(string("add $at, $at, $gp"));// + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $gp");
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+
-                    itos(RegMap[t.src1]->offsetByGp)+"("+GetRegName(RegMap[t.src2]->rg)+")");
+                    itos(RegMap[t.src1]->offsetByGp)+"($at)");//+GetRegName(RegMap[t.src2]->rg)+")");
                 }
                 else
                 {
-                    codes.push_back(string("add ") + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $fp");
+                    codes.push_back(string("add $at, $at, $fp"));// + GetRegName(RegMap[t.src2]->rg) + ", " + GetRegName(RegMap[t.src2]->rg) + ", $fp");
                     codes.push_back(string("lw ")+GetRegName(RegMap[t.dst]->rg)+", "+
-                    itos(RegMap[t.src1]->offsetByFp)+"("+GetRegName(RegMap[t.src2]->rg)+")");
+                    itos(RegMap[t.src1]->offsetByFp)+"($at)");//+GetRegName(RegMap[t.src2]->rg)+")");
                 }
                 break;
             }
@@ -867,7 +867,7 @@ void MIPSTranslator::translate()
                 codes.push_back(string("lw $ra, ")+itos(tosub-4)+"($sp)");
                 if(t.dst->name()!="main")
                 {
-                    TempRefresh(false);
+                    TempRefresh();
                     // restore $ra and $fp
                     codes.push_back(string("lw $fp, ")+itos(tosub-8)+"($sp)");
                     // restore $s0-$s7 if necessary

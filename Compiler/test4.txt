@@ -1,0 +1,82 @@
+const int test =2;
+const char hei = 'k';
+int hhh;
+int cal(int a,int b)
+{
+    return (a+b);
+}
+int febo(int n)
+{
+    if(n<=1)
+    {
+        return (cal(n,n));
+    }
+    return (febo(n-2)+febo(n-1));
+}
+char code_chr(char ch,int shift)
+{
+    char res;
+    res = ch+shift;
+    return (res);
+}
+void main()
+{
+    int a,b;
+    int test;
+    char c;
+    int num[10];
+    char s[10];
+    int len,j,k;
+    int i;
+    hhh = 4;
+    c='a';
+    test = 5;
+    a=2;
+    b=a;
+    a=5;
+    b=7;
+    a=a-b;
+    printf(hei);
+    printf(hei+1);
+    scanf(b);
+    printf(febo(b) );
+    hhh = hhh+2-febo(b)+febo(cal(cal(2,3),cal(cal(a,b),hhh)))*3;
+    printf(hhh );
+    num[b]=febo(test);
+    for(i=0;i<10;i=i+1)
+    {
+        s[i]=code_chr(c,i);
+        printf(s[i]);
+    }
+    scanf(len);
+    for(j=1;j<=len;j=j+1){
+        scanf(a);
+        k=0;
+        for(i=0;k!=1;i=i+1)
+        {
+            if(a/10==0)
+                k=1;
+            else{
+                a=a/10;
+            }
+        }
+        printf(i);
+    }
+    scanf(a);
+    a = cal(a,febo(a));
+    printf(a);
+    if(a>10)
+    {
+        for(i=0;i<a;i=i+1)
+        {
+            printf(febo(i));
+        }
+    }
+    else
+    {
+        for(j=a;j>=0;j=j-1)
+        {
+            printf(febo(j));
+        }
+    }
+}

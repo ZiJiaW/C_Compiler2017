@@ -15,7 +15,7 @@ void testDeclare()
 {
     const int a32 = 312, _b = +142;
     const char h = 'a', ct = 'C', pp = '3';
-    int arr[1],arr_2[15], sum, sub;
+    int arr[2],arr_2[15], sum, sub;
     char hih, lowct, uppp;
     sum = a32+_b;
     hih = h-32;

@@ -25,7 +25,7 @@
 	"Symbol.h"
 	"ErrorHandler.h"
 
-1512735309 source:e:\compiler2017\compiler\main.cpp
+1513133327 source:e:\compiler2017\compiler\main.cpp
 	<fstream>
 	<cstdlib>
 	"MiddleCode.h"
@@ -99,16 +99,16 @@
 	"SymbolTable.h"
 	<queue>
 
-1512216603 source:e:\compiler2017\compiler\mipstranslator.cpp
+1513242870 source:e:\compiler2017\compiler\mipstranslator.cpp
 	<algorithm>
 	<cstdlib>
 	"MIPSTranslator.h"
 
-1512735875 e:\compiler2017\compiler\optimizer.h
+1513136074 e:\compiler2017\compiler\optimizer.h
 	"MiddleCode.h"
 	"SymbolTable.h"
 
-1512736148 source:e:\compiler2017\compiler\optimizer.cpp
+1513132961 source:e:\compiler2017\compiler\optimizer.cpp
 	<algorithm>
 	"Optimizer.h"
 

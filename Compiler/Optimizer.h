@@ -2,7 +2,7 @@
 #define OPTIMIZER_H_INCLUDED
 #include "MiddleCode.h"
 #include "SymbolTable.h"
-#define OPTDEBUG
+//#define OPTDEBUG
 class Optimizer {
 public:
     Optimizer(MiddleCode &_mc, SymbolTable &_tbl, vector<TableItem*> &_tmptbl);

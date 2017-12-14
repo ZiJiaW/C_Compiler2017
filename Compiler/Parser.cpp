@@ -97,6 +97,7 @@ void Parser::StartParsing()
     #endif
     curTbl = &rootTable;
     NextToken();
+    //cout<<curToken->name()<<endl;
     Program();
     return;
 }
