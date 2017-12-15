@@ -67,6 +67,18 @@ void Optimizer::PeepHoleOpt()
                         }
                     }
                 }
+                // 上面可能会找不到，因为如果是全局变量赋值的话，没有作用域，因此可以直接上行查找函数定义的中间代码
+                if(!curTbl)
+                {
+                    for(vector<midInstr>::iterator q = p; q != result.begin(); --q)
+                    {
+                        if(q->op == FUNC)
+                        {
+                            curTbl = q->dst->funcField();
+                            break;
+                        }
+                    }
+                }
                 int val = p->op==ADD ? p->src1->value()+p->src2->value() :
                           p->op==SUB ? p->src1->value()-p->src2->value() :
                           p->op==MUL ? p->src1->value()*p->src2->value() :
