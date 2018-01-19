@@ -79,7 +79,7 @@ void main()
     printf(" ");
     printf("gcd of 98, 63 = ", gcd(98,63,100));
     printf("gcd of 1280, 1250 = ",10*gcd(1280,1250)/20*2);
-    complexfor();
+    complexfor(10);
     printf("   fib of 20 = ",fib(20));
     scanf(q);
     if(n>100)
@@ -95,12 +95,12 @@ void main()
     printf("original array: ");
     for(i=0;i<n;i=i+1)
     {
-        printf(" ",a[i])
+        printf(" ",a[i]);
     }
     bubblesort(n);
     printf("sorted array: ");
     for(i=0;i<n;i=i+1)
     {
-        printf(" ",a[i]);
+        printf(" ",a[i])
     }
 }

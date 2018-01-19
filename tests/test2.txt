@@ -77,14 +77,14 @@ void main()
     int m,n,i;
     printf("gcd of 319, 377 = ",gcd(319,377));
     printf(" ");
-    printf("gcd of 98, 63 = ", gcd(98,63,100));
+    printf("gcd of 98, 63 = ", gcd(98,63));
     printf("gcd of 1280, 1250 = ",10*gcd(1280,1250)/20*2);
     complexfor();
     printf("   fib of 20 = ",fib(20));
-    scanf(q);
+    scanf(n);
     if(n>100)
     {
-        printf("your array length should be less than 100!!!");
+        printf(" your array length should be less than 100!!!");
         return;
     }
     for(i=0;i<n;i=i+1)
@@ -92,13 +92,13 @@ void main()
         scanf(m);
         a[i] = m;
     }
-    printf("original array: ");
+    printf(" original array: ");
     for(i=0;i<n;i=i+1)
     {
-        printf(" ",a[i])
+        printf(" ",a[i]);
     }
     bubblesort(n);
-    printf("sorted array: ");
+    printf(" sorted array: ");
     for(i=0;i<n;i=i+1)
     {
         printf(" ",a[i]);

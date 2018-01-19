@@ -4,7 +4,7 @@
 #include "MiddleCode.h"
 #include "SymbolTable.h"
 #include "global.h"
-#define DEBUG
+//#define DEBUG
 class Parser {
 public:
     Parser(Lexer &lex, ErrorHandler &eh, MiddleCode &mc, SymbolTable &rt);

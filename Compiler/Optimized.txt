@@ -1,312 +1,52 @@
-void testDeclare()
-uppp = 52
-lowct = 99
-hih = 65
-sum = 454
-arr[0] = 12
-arr[1] = 2
-write sum
-write t20
-write hih
-write t21
-write lowct
-write t22
-write uppp
-write t23
-t25 = arr[0]
-write t25
-write t26
-t28 = arr[1]
-write t28
-end_func testDeclare
-void testForAndArray()
-p = 'a'
-Label_t30:
-t34 = p - 'a'
-ch2[t34] = p
-t38 = p - 'a'
-t39 = ch2[t38]
-write t39
-p = p + 1
-t42 = p - 'z'
-blez Label_t30, t42
-n = 100
-sum = 0
-m = 50
-Label_t46:
-sum_tmp = sum
-t52 = n
-t53 = m
-sum = sum_tmp + n
-bne Label_t51, t52, t53
-m = 20
-JMP Label_t55
-Label_t51:
-n = n - 1
-Label_t55:
-n = n - 1
-t61 = n - m
-bgez Label_t46, t61
-write t62
-write sum
-n = 0
-Label_t64:
-t69 = n - 0
-bgez Label_t66, t69
-ret
-end_func testForAndArray
-JMP Label_t70
-Label_t66:
-Label_t70:
-write t71
-n = n - 1
-t74 = n - 0
-bltz Label_t64, t74
-end_func testForAndArray
-int sum()
+int cal()
 para int a
 para int b
-t77 = a + b
-ret t77
-end_func sum
-end_func sum
-int testExpression()
-t96 = -2
-t92 = -480
-s = 0
-t98 = ch2[9]
-t100 = t98 - 'a'
-t102 = t100 * 2
-t103 = t96 + t102
-cal = t92 + t103
-write cal
-t119 = -480
-t123 = -2
-t125 = ch2[9]
-t127 = t125 - 'a'
-t129 = t127 * 2
-t130 = t123 + t129
-t131 = t119 + t130
-t135 = t131 - 18
-bgtz Label_t105, t135
-write t136
-JMP Label_t137
-Label_t105:
-write t138
-Label_t137:
-t140 = -3
-t145 = 18
-t142 = t140 + 0
-push t145
-t151 = -3
-t153 = t151 + 0
-push t153
-call sum
-t154 = ret
-loop = t142 + t154
-Label_t156:
-s_tmp = s
-loop_tmp = loop
-loop = loop_tmp + 1
-t161 = loop_tmp + 1
-s = s_tmp + loop_tmp
-t164 = ch2[9]
-t166 = t164 - 'a'
-t168 = t166 * 2
-t169 = 15 + t168
-push t169
-t175 = -2
-t179 = t175 - 8
-push t179
-call sum
-t180 = ret
-t181 = t161 - t180
-blez Label_t156, t181
-write t182
-write loop
-t196 = -480
-t200 = -2
-t202 = ch2[9]
-t204 = t202 - 'a'
-t206 = t204 * 2
-t207 = t200 + t206
-t208 = t196 + t207
-ret t208
-end_func testExpression
-end_func testExpression
-int sq_dist()
-para int x1
-para int x2
-para int x3
-para int x4
-t221 = x4 - x3
-t214 = x2 - x1
-t222 = t221 * t221
-t215 = t214 * t214
-ret = t215 + t222
-t226 = ret + 1
-t228 = t226 * 2
-t230 = t228 / 2
-t232 = t230 - 1
-ret t232
-end_func sq_dist
-end_func sq_dist
-int fact()
-para int n
-t234 = n
-bne Label_t233, t234, 1
-ret 1
-end_func fact
-JMP Label_t237
-Label_t233:
-Label_t237:
-t238 = n
-t241 = n - 1
-push t241
-call fact
-t242 = ret
-t243 = t238 * t242
-ret t243
-end_func fact
-end_func fact
-int reduce()
-para int n
-t245 = n
-bne Label_t244, t245, 1
-ret 1
-end_func reduce
-JMP Label_t248
-Label_t244:
-Label_t248:
-t249 = n
-t252 = n - 1
-push t252
-call reduce
-t253 = ret
-t254 = t249 + t253
-ret t254
-end_func reduce
-end_func reduce
-int reduce_to_m()
-para int n
-para int m
-r = 0
-Label_t256:
-r = r + n
-n = n - 1
-t263 = n - m
-bgez Label_t256, t263
-t264 = r
-ret t264
-end_func reduce_to_m
-end_func reduce_to_m
-char Lower()
-para char ch
-t267 = ch + 32
-ret t267
-end_func Lower
-end_func Lower
+t3 = b - 0
+bgtz Label_t0, t3
+ret 0
+end_func cal
+JMP Label_t5
+Label_t0:
+t6 = a
+push t6
+t9 = b - 1
+push t9
+call cal
+t10 = ret
+t12 = t10 + 1
+ret t12
+end_func cal
+Label_t5:
+end_func cal
 void main()
-read i
-read s1
-t271 = i - 0
-bgez Label_t268, t271
-write t272
-ret
-end_func main
-JMP Label_t273
-Label_t268:
-Label_t273:
-t284 = 10
-t275 = i
-beq Label_t274, t275, t284
-write t285
-write i
-ret
-end_func main
-JMP Label_t286
-Label_t274:
-Label_t286:
-t288 = s1
-bne Label_t290, 50, t288
-t293 = i + 6
-t295 = t293 / 2
-push t295
-call fact
-t296 = ret
-k = t296
-write t297
-write k
-JMP Label_t287
-Label_t290:
-bne Label_t299, 51, t288
-t302 = 1000 / i
-t304 = t302 + s1
-t306 = t304 - '0'
-push t306
-call reduce
-t307 = ret
-j = t307
-write t308
-write j
-JMP Label_t287
-Label_t299:
-bne Label_t310, 52, t288
-k = 100
-write t332
-t333 = k
-push t333
-push 50
-call reduce_to_m
-t335 = ret
-write t335
-JMP Label_t287
-Label_t310:
-bne Label_t337, 53, t288
-s1 = 'A'
-Label_t339:
-t344 = s1
-t343 = s1 - 'A'
-push t344
-call Lower
-t345 = ret
-s5[t343] = t345
-t348 = s1 - 'A'
-t349 = s5[t348]
-write t349
-s1 = s1 + 1
-t352 = s1 - 'Z'
-blez Label_t339, t352
-write s5
-JMP Label_t287
-Label_t337:
-bne Label_t354, 54, t288
-call testDeclare
-write t355
-call testForAndArray
-JMP Label_t287
-Label_t354:
-bne Label_t357, 55, t288
-call testExpression
-t358 = ret
-k = t358
-write t359
-write k
-JMP Label_t287
-Label_t357:
-write t360
-t361 = i
-push t361
-t362 = 81
-push t362
-t363 = -15
-push t363
-t364 = 13
-push t364
-call sq_dist
-t365 = ret
-write t365
-Label_t287:
+c = 3
+t21 = -3
+b = 2
+t19 = t21 * 2
+t22 = t19 * t21
+a = t22 + 2
+write a
+a = b + c
+t30 = b + c
+push 2
+push 3
+call cal
+t33 = ret
+a = t30 + t33
+write t35
+write a
+read d
+t37 = d
+bne Label_t39, 97, t37
+write t40
+JMP Label_t36
+Label_t39:
+bne Label_t42, 98, t37
+write t43
+JMP Label_t36
+Label_t42:
+write t44
+Label_t36:
 ret
 end_func main
 end_prog main

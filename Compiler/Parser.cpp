@@ -1326,11 +1326,12 @@ void Parser::PrintState()
     NextToken();
     if(curToken->type() == conststr)
     {
-        TableItem* dst = NewTmpVal(curToken->name());
-        mc.Generate(WRITE, dst);
+        TableItem* dst1 = NewTmpVal(curToken->name());
+        //mc.Generate(WRITE, dst);
         NextToken();
         if(curToken->type() == Rpar)
         {
+            mc.Generate(WRITE, dst1);
             NextToken();
             return;
         }
@@ -1340,6 +1341,7 @@ void Parser::PrintState()
             NextToken();
             if(curToken->type() == Rpar) // print("hello", 'a') or print("hello", 20) or print("hello", a)
             {
+                mc.Generate(WRITE, dst1);
                 BackToken(1);
                 if(curToken->type() == NUM)
                 {
@@ -1376,6 +1378,7 @@ void Parser::PrintState()
             {
                 BackToken(1);
                 TableItem* dst = Expression();
+                mc.Generate(WRITE, dst1);
                 mc.Generate(WRITE, dst); // now )
             }
             NextToken();

@@ -49,13 +49,13 @@
 	<vector>
 	<map>
 
-1513244107 source:e:\compiler2017\compiler\parser.cpp
+1514117763 source:e:\compiler2017\compiler\parser.cpp
 	<vector>
 	<cstdlib>
 	"Symbol.h"
 	"Parser.h"
 
-1512198408 e:\compiler2017\compiler\parser.h
+1513515439 e:\compiler2017\compiler\parser.h
 	"Lexer.h"
 	"MiddleCode.h"
 	"SymbolTable.h"
@@ -104,11 +104,11 @@
 	<cstdlib>
 	"MIPSTranslator.h"
 
-1513136074 e:\compiler2017\compiler\optimizer.h
+1515854933 e:\compiler2017\compiler\optimizer.h
 	"MiddleCode.h"
 	"SymbolTable.h"
 
-1513132961 source:e:\compiler2017\compiler\optimizer.cpp
+1515583912 source:e:\compiler2017\compiler\optimizer.cpp
 	<algorithm>
 	"Optimizer.h"
 

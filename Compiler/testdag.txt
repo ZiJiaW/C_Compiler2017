@@ -13,7 +13,6 @@ int cal(int a,int b)
 void main()
 {
     int b,c;
-	char d;
     a = 1;
     b = 2;
     c = 3;
@@ -21,20 +20,6 @@ void main()
     printf(a);
     a = b+c;
     a = b+c+cal(2,3);
-    printf(" ", a);
-	
-	scanf(d);
-	switch(d)
-	{
-	    case 'a':{
-		    printf("you input a!");
-		}
-		case 'b':{
-		    printf("you input b!");
-		}
-		default:{
-		    printf("not a or b!");
-		}
-	}
+    printf(a);
     return ;
 }

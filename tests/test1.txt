@@ -107,11 +107,6 @@ char Lower(char ch)
 {
     return (ch+32);
 }
-int test_print()
-{
-	printf(" should print first! ");
-	return (1);
-}
 void main(){
     const int n = 81, n1 = -15, n3 = +13, n4 = 0, n6 = 0;
     const char q = 'q', q2 = 's', q3 = '1', q4 = '+';
@@ -121,10 +116,10 @@ void main(){
     scanf(i,s1);
     if(i<0)
     {
-	printf("i shouldn't < 0!"); 
-	return;
+		printf("i shouldn't < 0!"); 
+		return;
     }
-    if(i!=10)
+    if(i!=12/6*5+1-1)
     {
         printf("i should be 10, not ", i);
         return;
@@ -145,9 +140,9 @@ void main(){
         case '5':{
             for(s1 = 'A'; s1 <='Z'; s1=s1+1)
             {
-                s5[s1-'A']=Lower(s1);
+                s5[s1-'A']=Lower(s1); 
                 printf(s5[s1-'A']);
-           }
+            }
         }
         case '6':{
             testDeclare();
@@ -155,11 +150,10 @@ void main(){
             testForAndArray();
         }
         case '7':{
-             k = testExpression();
-              printf("result: ",k);}
+            k = testExpression();
+            printf("result: ",k);}
         default:{
                 printf("default:",sq_dist(i,n,n1,n3));
-				printf("should print second", test_print());
         }
     }
     return;

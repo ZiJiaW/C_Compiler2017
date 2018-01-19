@@ -29,6 +29,7 @@ void Optimizer::PeepHoleOpt()
         vector<midInstr> ret;
         for(vector<midInstr>::iterator p = result.begin(); p != result.end(); p++)
         {
+            //cout<<string(p->dst!=NULL ? p->dst->name() : "none")<<endl;
             if(p->op == GIV && IsTemp(p->dst) && ((p+1)->src1 == p->dst || (p+1)->src2 == p->dst) && AbleOpt(*(p+1)))
             {
                 TableItem* src1 = (p+1)->src1 == p->dst ? p->src1 : (p+1)->src1;
@@ -50,7 +51,7 @@ void Optimizer::PeepHoleOpt()
                 opted = true;
                 TableItem* t = p->dst;
                 SymbolTable* curTbl = NULL;
-                for(map<string, TableItem*>::iterator q = tbl.table.begin(); q != tbl.table.end(); q++)
+                /*for(map<string, TableItem*>::iterator q = tbl.table.begin(); q != tbl.table.end(); q++)
                 {
                     if(q->second->funcField() != NULL)
                     {
@@ -66,7 +67,7 @@ void Optimizer::PeepHoleOpt()
                             break;
                         }
                     }
-                }
+                }*/
                 // 上面可能会找不到，因为如果是全局变量赋值的话，没有作用域，因此可以直接上行查找函数定义的中间代码
                 if(!curTbl)
                 {
@@ -212,7 +213,7 @@ TableItem* Graph::GetItemByIndex(int index)
     if(index == -1)
         return NULL;
     else
-        return nodes[index].isLeaf ? nodes[index].val : indexRecord[index][0];
+        return nodes[index].isLeaf ? nodes[index].val : indexRecord[index].empty() ? NULL : indexRecord[index][0];
 }
 /**
  * judge if t is a temp variable;
@@ -261,6 +262,17 @@ void Optimizer::DAGOpt()
                             != p->second->funcField()->temp.end())
                     {
                         curTbl = p->second->funcField();
+                        break;
+                    }
+                }
+            }
+            if(!curTbl)
+            {
+                for(vector<midInstr>::reverse_iterator q = result.rbegin(); q != result.rend(); ++q)
+                {
+                    if(q->op == FUNC)
+                    {
+                        curTbl = q->dst->funcField();
                         break;
                     }
                 }
@@ -336,6 +348,9 @@ void Optimizer::DAGOpt()
                 }
             }
             // 根据上面的顺序进行代码导出
+            #ifdef OPTDEBUG
+            cout<< "this ok!"<<endl;
+            #endif // OPTDEBUG
             for(vector<int>::reverse_iterator p = out.rbegin(); p != out.rend(); p++)
             {
                 bool has = false;
@@ -354,7 +369,7 @@ void Optimizer::DAGOpt()
                         graph.GetItemByIndex(graph.nodes[*p].leftChild),
                         graph.GetItemByIndex(graph.nodes[*p].rightChild)));
                     }
-                    else
+                    else if(graph.indexRecord[*p].size() > 1)
                     {
                         if(IsTemp(*it) && useCount[*it] == 2 && (it+1 != graph.indexRecord[*p].end() || has))
                         {
